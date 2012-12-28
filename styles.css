@@ -1,0 +1,648 @@
+@font-face {
+	font-family: 'StoneSans';
+	src: url('StoneSansSCITCTTMedium.ttf');
+}
+
+.highlight {
+	color: green;
+}
+
+.header {
+	text-align: center;
+	min-height: 40px;
+	font-size: 30px;
+	font-family: "StoneSans";
+}
+
+.header .ui-btn-text {
+	color: white;
+}
+
+body {
+	background: linear-gradient(#870511, #54030B) !important;
+	background: -moz-linear-gradient(#870511, #54030B) !important;
+	background: -webkit-linear-gradient(#870511, #54030B) !important;
+	background: -webkit-gradient(linear, left top, left bottom, from(#7C0510), to(#7C0510)) !important;
+	background: -o-linear-gradient(#870511, #54030B) !important;
+	text-shadow: none;
+}
+
+/******************/
+/* Coloring the app */
+/******************/
+
+.ui-bar-x {
+	background: linear-gradient(#5E6A71, #393F3E);
+	background: -moz-linear-gradient(#5E6A71, #393F3E);
+	background: -webkit-linear-gradient(#5E6A71, #393F3E);
+	background: -webkit-gradient(linear, left top, left bottom, from(#5E6A71), to(#393F3E));
+	background: -o-linear-gradient(#5E6A71, #393F3E);
+	color: #fff;
+}
+
+.ui-bar-y {
+	background: #333;
+	color: white;
+}
+
+.ui-page {
+	background: linear-gradient(#870511, #54030B);
+	background: -moz-linear-gradient(#870511, #54030B);
+	background: -webkit-linear-gradient(#870511, #54030B);
+	background: -webkit-gradient(linear, left top, left bottom, from(#7C0510), to(#7C0510));
+	background: -o-linear-gradient(#870511, #54030B);
+	text-shadow: none;
+}
+
+.ui-btn-active {
+	background: linear-gradient(#898989, #bbb);
+	background: -moz-linear-gradient(#898989, #bbb);
+	background: -webkit-linear-gradient(#898989, #bbb);
+	background: -webkit-gradient(linear, left top, left bottom, from(#898989), to(#bbb));
+	background: -o-linear-gradient(#898989, #bbb);
+}
+
+
+#departmentOffices .ui-listview-inset .ui-li-desc, #studentAffairs .ui-listview-inset .ui-li-desc, #aswsuvOsi .ui-listview-inset .ui-li-desc {
+	color: white;
+	font-size: 15px;
+}
+
+#departmentOffices .alternate.ui-li-desc .ui-link {
+	color: #2489ce;
+}
+
+#departmentOffices .ui-listview-inset .ui-link {
+	color: #67C2FE;
+}
+
+.ui-collapsible-heading .ui-btn {
+	text-decoration: none;
+}
+
+#events .ui-collapsible-content {
+	margin-top: -8px;
+	padding-top: 15px;
+}
+
+.ui-btn-text {
+	color: black;
+}
+
+.ui-li {
+	background: #898989;
+	text-shadow: none;
+	color: white;
+	display: block;
+	padding: 0;
+	margin: 0 -8px;
+}
+
+/********************/
+/** General Styles **/
+/********************/
+
+#aswsuvLong2 {
+	display: block;
+	margin-left: auto;
+	margin-right: auto;
+	width: 100%;
+}
+
+.homepage {
+	height: 100%;
+	width: 100%;
+}
+
+#welcome {
+	background-color: #870511;
+}
+
+#aswsuvstripe {
+	height: 20px;
+	width: 100%;
+}
+
+#welcome .copyright {
+	clear: both;
+	text-align: center;
+	border-top: 8px solid gray;
+	color: white;
+	width: 100%;
+	margin: -20px 0 5px 0;
+}
+
+#about .copyright {
+	text-align: center;
+	border-top: 8px solid gray;
+	color: white;
+	width: 100%;
+	margin: 0 0 0 -15px;
+	padding-right: 30px;
+}
+
+.eventsAndNav {
+	padding: 0;
+	list-style: none;
+	margin-top: 20px;
+	margin-bottom: 20px;
+	margin-right: auto;
+	margin-left: auto;
+	width: 516px;
+	height: 440px
+}
+
+.eventsAndNav a {
+	display: block;
+	float: left;
+	padding: 0;
+	margin: 20px 10px 20px 10px;
+	width: 152px;
+	height: 180px;
+}
+
+.eventsAndNav #mapIcon {	
+	background-image: url(images/mapIconSprite.png);
+}
+
+.eventsAndNav #eventsSprite {	
+	background-image: url(images/eventsIconSprite.png);
+}
+
+.eventsAndNav #directoryIcon {
+	background-image: url(images/directoryIconSprite.png);
+}
+
+.eventsAndNav #backpackIcon {
+	background-image: url(images/backpackIconSprite.png);
+}
+
+.eventsAndNav #aboutIcon {
+	background-image: url(images/aboutIconSprite.png);
+}
+
+.eventsAndNav #connectIcon {
+	background-image: url(images/connectIconSprite.png);
+}
+
+.eventsAndNav #mapIcon, .eventsAndNav #eventIcon, .eventsAndNav #directoryIcon, .eventsAndNav #backpackIcon, .eventsAndNav #aboutIcon, .eventsAndNav #connectIcon {
+	background-position: 0 0;
+	text-indent: -9999px;
+}
+
+.eventsAndNav #mapIcon:active, .eventsAndNav #eventsSprite:active, .eventsAndNav #directoryIcon:active, .eventsAndNav #backpackIcon:active, .eventsAndNav #aboutIcon:active, .eventsAndNav #connectIcon:active {
+	background-position: 0 180px;
+}
+
+.eventsAndNav {
+	position: relative;
+}
+
+#eventsCounter {
+	position: absolute;
+	top: 5px;
+	left: 115px;
+	z-index: 500;
+	color: black;
+	font-size: 50px;
+	width: 25px;
+	height: 25px;
+	text-shadow: 2px 2px 1px #CCC;
+}
+
+#mapHeader {
+	font-size: 30px;
+	text-align: center;
+	font-family: "StoneSans";
+}
+	
+#mapHeader .ui-btn-text {
+	color: white;
+}
+
+.mapnav {
+	font-size: 9px;
+}
+
+#mapButtons {
+	margin-top: 5px;
+	margin-bottom: 0;
+}
+
+#map_canvas {
+	height: 960px;
+	width: 100%;
+	padding: 0;
+	clear: both;
+}
+
+.events div {
+	background: #ddd;
+	padding: 5px;
+}
+
+#events .ui-listview {
+	width: 100%; 
+	margin: -1px 0 0 0;
+}
+
+#events .ui-listview li {
+	text-align: center;
+}
+
+.alternate { /*style for every other list item*/
+	background-color: #3b3b3b;
+	text-shadow: none;
+}
+
+.directoryButton {
+	margin: 15%;
+	font-size: 150%;
+}
+
+p {
+	padding: .5% 1%;
+}
+
+#displayBox { /*div that creates the fade to black effect*/
+	display: none;
+	opacity: .7;
+	background-color: black;
+	z-index: 99;
+	position: absolute;
+	top: 0px;
+	left: 0px;
+	width: 100%;
+	height: 100%;
+}
+
+#addNote { /*form to add notes*/
+	z-index: 100;
+	width: 80%;
+	background-color: black;
+	text-shadow: none;
+	color: white;
+	position: absolute;
+	left: 10%;
+	top: 0;
+	margin-bottom: 2%;
+	border-radius: 10px;
+}
+
+#noteForm { /*hides form for fadeToggle effect*/
+	display: none;
+}
+
+textarea {
+	resize: none;
+	overflow: hidden;
+	height: 100%;
+}
+
+#submit {
+	margin-left: 35%;
+}
+
+#editNoteButton {
+	margin-left: 30%;
+}
+
+#notes {
+	color: #B6BCBF;
+	font-size: 20px;
+}
+
+.noteContent {
+	color: white;
+	font-size: 18px;
+}
+
+.delete {
+	position: absolute;
+	right: 20px;
+}
+
+#tabsList .ui-btn-text {
+	text-shadow: none;
+	color: white;
+}
+
+.ui-page .ui-listview-filter {
+	margin: 0 10px;
+}
+
+#aswsuvOsi, #foodShoppingPanel, #servicesPanel, #about {
+	color: #B6BCBF;
+	font-size: 18px;
+}
+
+#aswsuvOsi h3, #foodShoppingPanel h3, #servicesPanel h3, #about h4 {
+	color: #f0f0f0;
+}
+
+#aswsuvOsi h3 {
+	display: inline;
+}
+
+.info {
+	color: #B6BCBF;
+}
+
+.info h4 {
+	display: inline;
+	color: black;
+}
+
+.gallery img {
+	display: block;
+	margin-left: auto;
+	margin-right: auto;
+	width: 100%;
+	margin-bottom: 10px;
+}
+
+.gridview {
+	margin: 0 auto 0 5%;
+}
+
+.gridview div {
+	text-align: center;
+	margin: 0 auto 0 auto;
+	float: left;
+	width: 31.5%;
+}
+
+.gridview p {
+	height: 60px;
+}
+
+.gridview img {
+	max-width: 100%;
+	max-height: 210px;
+	margin: 0;
+}
+/**************************/
+/* The Nivo Slider styles */
+/**************************/
+.nivoSlider {
+	position:relative;
+	width:100%;
+	height:auto;
+	overflow: hidden;
+}
+.nivoSlider img {
+	position:absolute;
+	top:0px;
+	left:0px;
+}
+.nivo-main-image {
+	display: block !important;
+	position: relative !important; 
+	width: 100% !important;
+}
+
+/* If an image is wrapped in a link */
+.nivoSlider a.nivo-imageLink {
+	position:absolute;
+	top:0px;
+	left:0px;
+	width:100%;
+	height:100%;
+	border:0;
+	padding:0;
+	margin:0;
+	z-index:6;
+	display:none;
+}
+/* The slices and boxes in the Slider */
+.nivo-slice {
+	display:block;
+	position:absolute;
+	z-index:5;
+	height:100%;
+	top:0;
+}
+.nivo-box {
+	display:block;
+	position:absolute;
+	z-index:5;
+	overflow:hidden;
+}
+.nivo-box img { display:block; }
+
+/* Caption styles */
+.nivo-caption {
+	position:absolute;
+	left:0px;
+	bottom:0px;
+	background:#000;
+	color:#fff;
+	width:100%;
+	z-index:8;
+	padding: 5px 10px;
+	opacity: 0.8;
+	overflow: hidden;
+	display: none;
+	-moz-opacity: 0.8;
+	filter:alpha(opacity=8);
+	-webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
+	-moz-box-sizing: border-box;    /* Firefox, other Gecko */
+	box-sizing: border-box;         /* Opera/IE 8+ */
+}
+.nivo-caption p {
+	padding:5px;
+	margin:0;
+}
+.nivo-caption a {
+	display:inline !important;
+}
+.nivo-html-caption {
+    display:none;
+}
+/* Direction nav styles (e.g. Next & Prev) */
+.nivo-directionNav a {
+	position:absolute;
+	bottom:20px;
+	z-index:9;
+	cursor:pointer;
+	display: block;
+	width: 60px;
+	height: 60px;   
+	text-indent: -9999px;
+	border: 0;
+}
+.nivo-prevNav {
+	background: url(images/arrows.png) no-repeat;
+	background-position: ;
+	left:25px;
+}
+.nivo-nextNav {
+	background: url(images/arrows.png) no-repeat;
+	background-position: -60px 0px;
+	right:25px;
+}
+/* Control nav styles (e.g. 1,2,3...) */
+.nivo-controlNav {
+	text-align:center;
+	padding: 15px 0px;
+}
+.nivo-controlNav a {
+	cursor:pointer;
+}
+.nivo-controlNav a.active {
+	font-weight:bold;
+}
+/*************/
+/* Nav Icons */
+/*************/
+
+#homeLink .ui-icon {
+	background-image: url('images/homeIcon.png');
+}
+
+#mapLink .ui-icon {
+	background-image: url('images/mapIcon.png');
+}
+
+#eventsLink .ui-icon {
+	background-image: url('images/eventsIcon.png');
+}
+
+#backpackLink .ui-icon {
+	background-image: url('images/backpackIcon.png');
+}
+
+#directoryLink .ui-icon {
+	background-image: url('images/directoryIcon.png');
+}
+
+.footer .ui-btn .ui-icon {
+	width: 36px;
+	height: 50px;
+	margin-left: -18px;
+	box-shadow: none;
+	border-radius: 0px 0px 0px 0px;
+	background-repeat: none;
+	background-attachment: scroll;
+	background-position: 50% 50%;
+	background-size: 36px 36px;
+	background-color: transparent;
+}
+
+@media screen and (max-width: 600px) { /*for screen sizes 600px and smaller*/
+	#tophalf {
+		height: 250px;
+	}
+	
+	.eventsAndNav {
+		width: 230px;
+		height: 365px;
+		margin-top: 10px;
+		margin-bottom: 10px;
+	}
+	
+	.eventsAndNav a{
+		margin: 5px 15px 5px 15px;
+		width: 85px;
+		height: 100px;
+	}
+	
+	.eventsAndNav #mapIcon {
+		background-image: url(images/mapIconSpriteSmall.png);
+	}
+	
+	.eventsAndNav #eventsSprite {
+		background-image: url(images/eventsIconSpriteSmall.png);
+	}
+	
+	.eventsAndNav #directoryIcon {
+		background-image: url(images/directoryIconSpriteSmall.png);
+	}
+	
+	.eventsAndNav #backpackIcon {
+		background-image: url(images/backpackIconSpriteSmall.png);
+	}
+	
+	.eventsAndNav #aboutIcon {
+		background-image: url(images/aboutIconSpriteSmall.png);
+	}
+	
+	.eventsAndNav #connectIcon {
+		background-image: url(images/connectIconSpriteSmall.png);
+	}
+
+	.eventsAndNav #mapIcon:active, .eventsAndNav #eventIcon:active, .eventsAndNav #directoryIcon:active, .eventsAndNav #backpackIcon:active, .eventsAndNav #aboutIcon:active, .eventsAndNav #connectIcon:active {
+		background-position: 0 100px;
+	}
+	
+	#eventsCounter {
+		top: -3px;
+		left: 72px;
+		font-size: 25px;
+	}
+	
+	#mapHeader {
+		font-size: 20px;
+		text-align: center;
+		height: 110px;
+	}
+	
+	#mapButtons {
+		margin-top: 15px;
+		margin-left: -35px;
+	}
+	
+	#map_canvas {
+		margin-top: 0;
+	}
+	
+	.ui-header .ui-btn {
+		margin: 5px 0 0 5px;
+	}
+
+	#addNote, {
+		z-index: 100;
+		width: 90%;
+		position: absolute;
+		top: 60px;
+		left: 5%;
+		background-color: black;
+		text-shadow: none;
+		color: white;
+		margin-bottom: 2%;
+	}
+	
+	#addNote input, #editNote input {
+		width: 95%;
+	}
+	
+	#submit, #saveChanges {
+		margin-left: 10px;
+	}
+	
+	.delete {
+		position: absolute;
+		right: 20px;
+	}
+	
+	.directoryButton {
+		margin: 20% 5%;
+		font-size: 100%;
+	}
+
+	.header {
+		font-size: 20px;
+		padding-top: 10px;
+	}
+
+	.nivoSlider img {
+		max-width: 100%;
+		max-height: 50%;
+		min-width: 300px;
+		min-height: 200px;
+	}
+	
+	.gridview div {
+		width: 50%;
+	}
+}

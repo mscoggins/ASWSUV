@@ -1,0 +1,4116 @@
+<!DOCTYPE html> 
+<html> 
+<head> 
+	<title>ASWSUV</title>
+	
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width; user-scalable = no" />
+	<meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0;">
+	<meta name="apple-mobile-web-app-capable" content="yes" /> 
+	<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+	<meta name="format-detection" content="telephone=yes">
+
+	<script src="jquery-1.7.2.js"></script>
+	
+	<script>
+		$(document).bind("mobileinit", function(){
+			$.mobile.defaultPageTransition="none"
+		});
+	</script>
+	
+	<script src="jquery.mobile-1.1.1.js"></script>
+	<script src="jquery.nivo.slider.pack.js"></script>
+	<!-- phonegap -->
+	<script src="cordova.js"></script>
+	
+	<link rel="stylesheet" href="jquery.mobile-1.1.1.min.css" />
+	<link rel="stylesheet" href="styles.css" />
+	
+	<script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=true"></script>
+
+<script><!-- hide splashscreen on deviceready before timeout
+	document.addEventListener("deviceready", onDeviceReady, false);
+
+	function onDeviceReady() {
+		console.log("We got device ready");
+		navigator.splashscreen.hide();
+	}
+</script>
+
+<script><!-- start google maps api script-->
+
+
+var markers = [];
+
+
+function initialize() {
+	
+//Setting Map
+    var mapOptions = {
+        zoom: 18,
+        center: new google.maps.LatLng(45.73068,-122.63687),
+		zoomControl: true,
+		panControl: false,
+		rotateControl: false,
+		streetViewControl: false,
+		mapTypeControl: false,
+        mapTypeId: 'satellite'
+    }
+    var map = new google.maps.Map(document.getElementById("map_canvas"), mapOptions);
+		map.setTilt(45);
+		
+// Info Window content
+	var publicSafetyContent = '<h3>Public Safety</h3>'+
+		'<p style="font-size:12px;">The WSUV Public Safety & Police Services office is located in the '+
+		'Admin building, room 160. The entrance to the office is located in '+
+		'the courtyard between the VCLS and '+
+		'VDEN. To contact the campus police, call <a href="tel:3605469001">360-546-9001</a>'+
+		'or email <a href="mailto:wsuvcops@vancouver.wsu.edu">wsuvcops@vancouver.wsu.edu</a>.<br />'+
+		'The campus police offer many services including escorts, help when you get locked out '+
+		'of your car, jump starts, police and crime prevention services and much more.</p>';
+	var parkingServicesContent = '<h3>Parking Services</h3>'+
+		'<p style="font-size:12px;">The Parking Services office is located in the Physical Plant building. '+
+		'Parking regulations at WSUV are strictly enforced Monday through '+
+		'Friday from 7 a.m. to 7 p.m, year round, so '+
+		'students should visit their website for more information regarding '+
+		'enforcement hours, parking locations, permits, and citations. '+
+		'If you have any questions that aren\'t addressed on their web page, '+
+		'contact their office by email at <a href="mailto:parkingservices@vancouver.wsu.edu">parkingservices@vancouver.wsu.edu</a> or '+
+		'call the office at <a href="tel:3605469009">360-546-9009</a> between 8am and 5pm Mon-Fri.</p>';
+	var writingCenterContent = '<h3>Writing Center</h3>'+
+		'<p style="font-size:12px;"><b>Hours:</b> Mon-Thurs 9:00am-5:pm and Fri 10:00am-2:00pm<br />'+
+		'The Writing Center is located in VLIB 203, directly to the right at the top of the stairs. '+
+		'If you need help with an assignment or would simply like help polishing your writing skills, '+
+		'the faculty in the Writing Center is happy to help. '+
+		'If you have any questions be sure to stop by or call <a href="tel:3605469651">360-546-9651</a>. '+
+		'You can also email <a href="mailto:writingcenter@vancouver.wsu.edu">'+
+		'writingcenter@vancouver.wsu.edu</a> to ask questions or submit papers for review. For more information, '+
+		'visit the Writing Center web page.</p>'
+	var MathLabContent = '<h3>Math Lab (QSC)</h3>'+
+		'<p style="font-size:12px;"><b>Hours:</b> Mon-Thurs 9:00am-5:00pm and Fri 9:00am to 3:00pm<br />'+
+		'The Math Lab, a.k.a. the Quantitative Skills Center (QSC), provides '+
+		'free drop-in math tutoring and help on math assignments. They also provide tutoring for '+
+		'math related subjects in Chemistry, Physics and Statistics. To learn more about the Math Lab, '+
+		'stop by or call <a href="tel:3605469344">360-546-9344</a>. You can also email '+
+		'<a href="mailto:joseph_randall@vancouver.wsu.edu">joseph_randall@vancouver.wsu.edu</a> or visit '+
+		'the QSC web page.</p>'
+	
+	
+// Setting Info Windows
+	var infowindow = new google.maps.InfoWindow({
+		content: publicSafetyContent,
+		maxWidth: 250
+	});
+	var infowindow2 = new google.maps.InfoWindow({
+		content: parkingServicesContent,
+		maxWidth: 250
+	});
+	var infowindow3 = new google.maps.InfoWindow({
+		content: writingCenterContent,
+		maxWidth: 250
+	});
+	var infowindow4 = new google.maps.InfoWindow({
+		content: MathLabContent,
+		maxWidth: 250
+	});
+	
+// Marker Categories
+    var markerBuildings = {
+        category: 'buildings',
+    }
+	
+	var markerParking = {
+        category: 'parking',
+    }
+
+	var markerRecreation = {
+        category: 'recreation',
+    }
+
+    var markerAcademic = {
+        category: 'academic',
+    }
+
+    var markerPOIs = {
+        category: 'pois',
+    }
+    
+// Icons
+	var iconVCCW = new google.maps.MarkerImage('images/buildingVCCW.png',
+		new google.maps.Size(32, 37),
+		new google.maps.Point(0,0),
+		new google.maps.Point(16,32));
+		
+	var iconVDEN = new google.maps.MarkerImage('images/buildingVDEN.png',
+		new google.maps.Size(32, 37),
+		new google.maps.Point(0,0),
+		new google.maps.Point(16,32));
+		
+	var iconVCLS = new google.maps.MarkerImage('images/buildingVCLS.png',
+		new google.maps.Size(32, 37),
+		new google.maps.Point(0,0),
+		new google.maps.Point(16,32));
+		
+	var iconVECS = new google.maps.MarkerImage('images/buildingVECS.png',
+		new google.maps.Size(32, 37),
+		new google.maps.Point(0,0),
+		new google.maps.Point(16,32));
+		
+	var iconVSCI = new google.maps.MarkerImage('images/buildingVSCI.png',
+		new google.maps.Size(32, 37),
+		new google.maps.Point(0,0),
+		new google.maps.Point(16,32));
+		
+	var iconVFO = new google.maps.MarkerImage('images/buildingVFO.png',
+		new google.maps.Size(32, 37),
+		new google.maps.Point(0,0),
+		new google.maps.Point(16,32));
+		
+	var iconVFSC = new google.maps.MarkerImage('images/buildingVFSC.png',
+		new google.maps.Size(32, 37),
+		new google.maps.Point(0,0),
+		new google.maps.Point(16,32));
+		
+	var iconVLIB = new google.maps.MarkerImage('images/buildingVLIB.png',
+		new google.maps.Size(32, 37),
+		new google.maps.Point(0,0),
+		new google.maps.Point(16,32));
+		
+	var iconVMCB = new google.maps.MarkerImage('images/buildingVMCB.png',
+		new google.maps.Size(32, 37),
+		new google.maps.Point(0,0),
+		new google.maps.Point(16,32));
+		
+	var iconVMMC = new google.maps.MarkerImage('images/buildingVMMC.png',
+		new google.maps.Size(32, 37),
+		new google.maps.Point(0,0),
+		new google.maps.Point(16,32));
+		
+	var iconVPP = new google.maps.MarkerImage('images/buildingVPP.png',
+		new google.maps.Size(32, 37),
+		new google.maps.Point(0,0),
+		new google.maps.Point(16,32));
+	
+	var iconVSSC = new google.maps.MarkerImage('images/buildingVSSC.png',
+		new google.maps.Size(32, 37),
+		new google.maps.Point(0,0),
+		new google.maps.Point(16,32));
+	
+	var iconVUB = new google.maps.MarkerImage('images/buildingVUB.png',
+		new google.maps.Size(32, 37),
+		new google.maps.Point(0,0),
+		new google.maps.Point(16,32));
+	
+	var iconAmphitheater = new google.maps.MarkerImage('images/amphitheater.png',
+		new google.maps.Size(32, 37),
+		new google.maps.Point(0,0),
+		new google.maps.Point(16,32));
+		
+	var iconEmergency = new google.maps.MarkerImage('images/emergency.png',
+		new google.maps.Size(32, 37),
+		new google.maps.Point(0,0),
+		new google.maps.Point(16,32));
+		
+	var iconRecreation = new google.maps.MarkerImage('images/recreation.png',
+		new google.maps.Size(32, 37),
+		new google.maps.Point(0,0),
+		new google.maps.Point(16,32));
+		
+	var iconOSI = new google.maps.MarkerImage('images/osiIcon.png',
+		new google.maps.Size(32, 37),
+		new google.maps.Point(0,0),
+		new google.maps.Point(16,32));
+		
+	var iconFitness = new google.maps.MarkerImage('images/fitness.png',
+		new google.maps.Size(32, 37),
+		new google.maps.Point(0,0),
+		new google.maps.Point(16,32));
+		
+	var iconEmergency = new google.maps.MarkerImage('images/emergency.png',
+		new google.maps.Size(32, 37),
+		new google.maps.Point(0,0),
+		new google.maps.Point(16,32));
+		
+	var iconLab = new google.maps.MarkerImage('images/lab.png',
+		new google.maps.Size(32, 37),
+		new google.maps.Point(0,0),
+		new google.maps.Point(16,32));
+		
+	var iconMathLab = new google.maps.MarkerImage('images/mathlab.png',
+		new google.maps.Size(32, 37),
+		new google.maps.Point(0,0),
+		new google.maps.Point(16,32));
+		
+	var iconWriting = new google.maps.MarkerImage('images/writing.png',
+		new google.maps.Size(32, 37),
+		new google.maps.Point(0,0),
+		new google.maps.Point(16,32));
+		
+	var iconAdmission = new google.maps.MarkerImage('images/admission.png',
+		new google.maps.Size(32, 37),
+		new google.maps.Point(0,0),
+		new google.maps.Point(16,32));
+		
+	var iconFinancial = new google.maps.MarkerImage('images/financial.png',
+		new google.maps.Size(32, 37),
+		new google.maps.Point(0,0),
+		new google.maps.Point(16,32));
+
+	var iconVisitor = new google.maps.MarkerImage('images/visitor.png',
+		new google.maps.Size(32, 37),
+		new google.maps.Point(0,0),
+		new google.maps.Point(16,32));
+		
+	var iconCafeteria = new google.maps.MarkerImage('images/cafeteria.png',
+		new google.maps.Size(32, 37),
+		new google.maps.Point(0,0),
+		new google.maps.Point(16,32));
+		
+	var iconParkingServices = new google.maps.MarkerImage('images/parkingservices.png',
+		new google.maps.Size(32, 37),
+		new google.maps.Point(0,0),
+		new google.maps.Point(16,32));
+		
+	var iconSafety = new google.maps.MarkerImage('images/safety.png',
+		new google.maps.Size(32, 37),
+		new google.maps.Point(0,0),
+		new google.maps.Point(16,32));
+		
+	var iconBookstore = new google.maps.MarkerImage('images/bookstore.png',
+		new google.maps.Size(32, 37),
+		new google.maps.Point(0,0),
+		new google.maps.Point(16,32));
+		
+	var iconFountain = new google.maps.MarkerImage('images/fountain.png',
+		new google.maps.Size(32, 37),
+		new google.maps.Point(0,0),
+		new google.maps.Point(16,32));
+		
+	var iconRocks = new google.maps.MarkerImage('images/rocks.png',
+		new google.maps.Size(32, 37),
+		new google.maps.Point(0,0),
+		new google.maps.Point(16,32));
+		
+	var iconSculpture = new google.maps.MarkerImage('images/sculpture.png',
+		new google.maps.Size(32, 37),
+		new google.maps.Point(0,0),
+		new google.maps.Point(16,32));
+		
+	var iconUser = new google.maps.MarkerImage('images/user.png',
+		new google.maps.Size(32, 37),
+		new google.maps.Point(0,0),
+		new google.maps.Point(16,32));
+
+//Coordinates
+
+//User Location
+	if(navigator.geolocation) {
+    	navigator.geolocation.getCurrentPosition(function(position) {
+        	var pos = new google.maps.LatLng(position.coords.latitude,
+                                             position.coords.longitude);
+
+        var usermarker = new google.maps.Marker({
+        	position: pos, 
+            map: map,
+            icon: iconUser
+        });
+        });
+        };
+		  
+//Buildings
+    var vmcb = new google.maps.Marker({
+        position: new google.maps.LatLng(45.730513,-122.638106),
+        map: map,
+		url: '#mcb',
+        icon: iconVMCB,
+        data: markerBuildings
+    });
+    markers.push(vmcb);		
+    var vden = new google.maps.Marker({                        
+        position: new google.maps.LatLng(45.730899,-122.637742),
+        map: map,
+		url: '#den',
+        icon: iconVDEN,
+        data: markerBuildings
+    });
+    markers.push(vden);
+	var vcls = new google.maps.Marker({                        
+        position: new google.maps.LatLng(45.731423,-122.637294),
+        map: map,
+		url: '#cls',
+        icon: iconVCLS,
+        data: markerBuildings
+    });
+    markers.push(vcls);
+	var vmmc = new google.maps.Marker({                        
+        position: new google.maps.LatLng(45.730382,-122.636669),
+        map: map,
+		url: '#mmc',
+        icon: iconVMMC,
+        data: markerBuildings
+    });
+    markers.push(vmmc);
+	var vlib = new google.maps.Marker({                        
+        position: new google.maps.LatLng(45.730992,-122.636245),
+        map: map,
+		url: '#lib',
+        icon: iconVLIB,
+        data: markerBuildings
+    });
+    markers.push(vlib);
+	var vub = new google.maps.Marker({                        
+        position: new google.maps.LatLng(45.729912,-122.636028),
+        map: map,
+		url: '#ub',
+        icon: iconVUB,
+        data: markerBuildings
+    });
+    markers.push(vub);
+	var vfsc = new google.maps.Marker({                        
+        position: new google.maps.LatLng(45.732063,-122.636297),
+        map: map,
+		url: '#fsc',
+        icon: iconVFSC,
+        data: markerBuildings
+    });
+    markers.push(vfsc);
+	var vssc = new google.maps.Marker({                        
+        position: new google.maps.LatLng(45.732393,-122.637296),
+        map: map,
+		url: '#ssc',
+        icon: iconVSSC,
+        data: markerBuildings
+    });
+    markers.push(vssc);
+	var vsci = new google.maps.Marker({                        
+        position: new google.maps.LatLng(45.732857,-122.636057),
+        map: map,
+		url: '#sci',
+        icon: iconVSCI,
+        data: markerBuildings
+    });
+    markers.push(vsci);
+	var vpp = new google.maps.Marker({                         
+        position: new google.maps.LatLng(45.732288,-122.634662),
+        map: map,
+		url: '#pp',
+        icon: iconVPP,
+        data: markerBuildings
+    });
+    markers.push(vpp);
+	var vfo = new google.maps.Marker({                         
+        position: new google.maps.LatLng(45.732033,-122.634072),
+        map: map,
+		url: '#fo',
+        icon: iconVFO,
+        data: markerBuildings
+    });
+    markers.push(vfo);
+	var vecs = new google.maps.Marker({                        
+        position: new google.maps.LatLng(45.732629,-122.634625),
+        map: map,
+		url: '#ecs',
+        icon: iconVECS,
+        data: markerBuildings
+    });
+    markers.push(vecs);
+	var vccw = new google.maps.Marker({                        
+        position: new google.maps.LatLng(45.733344,-122.635322),
+        map: map,
+		url: '#ccw',
+        icon: iconVCCW,
+        data: markerBuildings
+    });
+    markers.push(vccw);
+//Recreation                                               
+	var SportsFields = new google.maps.Marker({                
+        position: new google.maps.LatLng(45.727367,-122.639962),
+        map: map,
+        icon: iconRecreation,
+		url: '#sportsfields',
+        visible: false,
+        data: markerRecreation
+    });
+    markers.push(SportsFields);
+	var BasketballCourt	= new google.maps.Marker({             
+        position: new google.maps.LatLng(45.729401,-122.639249),
+        map: map,
+        icon: iconRecreation,
+		url: '#sportsfields',
+        visible: false,
+        data: markerRecreation
+    });
+    markers.push(BasketballCourt);
+	var DiskGolfField = new google.maps.Marker({               
+        position: new google.maps.LatLng(45.728581,-122.633514),
+        map: map,
+        icon: iconRecreation,
+		url: '#sportsfields',
+        visible: false,
+        data: markerRecreation
+    });
+    markers.push(DiskGolfField);
+	var FitnessCenter = new google.maps.Marker({               
+        position: new google.maps.LatLng(45.730797,-122.635995),
+        map: map,
+		url: '#directory',
+        icon: iconFitness,
+        visible: false,
+        data: markerRecreation
+    });
+    markers.push(FitnessCenter);
+	var OSI = new google.maps.Marker({               
+        position: new google.maps.LatLng(45.732391,-122.636327),
+        map: map,
+		url: '#directory',
+        icon: iconOSI,
+        visible: false,
+        data: markerRecreation
+    });
+    markers.push(OSI);
+//Academic                                                 
+	var MathLab = new google.maps.Marker({                
+        position: new google.maps.LatLng(45.73018,-122.635915),
+        map: map,
+        icon: iconMathLab,
+        visible: false,
+        data: markerAcademic
+    });
+    markers.push(MathLab);
+	var ComputerLab2 = new google.maps.Marker({                
+        position: new google.maps.LatLng(45.730663,-122.636572),
+        map: map,
+		url: '#directory',
+        icon: iconLab,
+        visible: false,
+        data: markerAcademic
+    });
+    markers.push(ComputerLab2);
+	var ComputerLab3 = new google.maps.Marker({                
+        position: new google.maps.LatLng(45.731122,-122.636179),
+        map: map,
+        icon: iconLab,
+        visible: false,
+        data: markerAcademic
+    });
+    markers.push(ComputerLab3);
+	var ComputerLab4 = new google.maps.Marker({                
+        position: new google.maps.LatLng(45.731479,-122.637131),
+        map: map,
+        icon: iconLab,
+        visible: false,
+        data: markerAcademic
+    });
+    markers.push(ComputerLab4);
+	var WritingCenter = new google.maps.Marker({               
+        position: new google.maps.LatLng(45.730914,-122.636229),
+        map: map,
+        icon: iconWriting,
+        visible: false,
+        data: markerAcademic
+    });
+    markers.push(WritingCenter);
+	var Admissions = new google.maps.Marker({                  
+        position: new google.maps.LatLng(45.732418,-122.637554),
+        map: map,
+        icon: iconAdmission,
+        visible: false,
+        data: markerAcademic
+    });
+    markers.push(Admissions);
+	var FinancialAid = new google.maps.Marker({                
+        position: new google.maps.LatLng(45.732423,-122.636965),
+        map: map,
+        icon: iconFinancial,
+        visible: false,
+        data: markerAcademic
+    });
+    markers.push(FinancialAid);
+//Points of Interest                                       
+	var VisitorCenter = new google.maps.Marker({               
+        position: new google.maps.LatLng(45.732453,-122.637377),
+        map: map,
+		icon: iconVisitor,
+        visible: false,
+        data: markerPOIs
+    });
+    markers.push(VisitorCenter);
+	var Bookstore = new google.maps.Marker({                   
+        position: new google.maps.LatLng(45.732447,-122.636706),
+        map: map,
+		icon: iconBookstore,
+        visible: false,
+        data: markerPOIs
+    });
+    markers.push(Bookstore);
+	var Cafeteria = new google.maps.Marker({                   
+        position: new google.maps.LatLng(45.731017,-122.637556),
+        map: map,
+		icon: iconCafeteria,
+        visible: false,
+        data: markerPOIs
+    });
+    markers.push(Cafeteria);
+	var ParkingServices = new google.maps.Marker({             
+        position: new google.maps.LatLng(45.732258,-122.635006),
+        map: map,
+		icon: iconParkingServices,
+        visible: false,
+        data: markerPOIs
+    });
+    markers.push(ParkingServices);
+	var PublicSafety = new google.maps.Marker({                
+        position: new google.maps.LatLng(45.731105,-122.637656),
+        map: map,
+		icon: iconSafety,
+        visible: false,
+        data: markerPOIs
+    });
+    markers.push(PublicSafety);
+	var Amphitheater = new google.maps.Marker({                
+        position: new google.maps.LatLng(45.731917,-122.639388),
+        map: map,
+        visible: false,
+        icon: iconAmphitheater,
+        data: markerPOIs
+    });
+    markers.push(Amphitheater);
+	var Fountain = new google.maps.Marker({                
+        position: new google.maps.LatLng(45.730978,-122.636851),
+        map: map,
+		url: '#attractions',
+        visible: false,
+        icon: iconFountain,
+        data: markerPOIs
+    });
+    markers.push(Fountain);
+	var Rocks = new google.maps.Marker({                
+        position: new google.maps.LatLng(45.731201,-122.635577),
+        map: map,
+		url: '#attractions',
+        visible: false,
+        icon: iconRocks,
+        data: markerPOIs
+    });
+    markers.push(Rocks);
+	var Sculpture = new google.maps.Marker({                
+        position: new google.maps.LatLng(45.73118,-122.634904),
+        map: map,
+		url: '#attractions',
+        visible: false,
+        icon: iconSculpture,
+        data: markerPOIs
+    });
+    markers.push(Sculpture);
+
+//Links
+	google.maps.event.addListener(vmmc, 'click', function() {
+		window.location.href = vmmc.url;
+	});
+	
+	google.maps.event.addListener(vub, 'click', function() {
+		window.location.href = vub.url;
+	});
+	
+	google.maps.event.addListener(vden, 'click', function() {
+		window.location.href = vden.url;
+	});
+	
+	google.maps.event.addListener(vccw, 'click', function() {
+		window.location.href = vccw.url;
+	});
+	
+	google.maps.event.addListener(vcls, 'click', function() {
+		window.location.href = vcls.url;
+	});
+	
+	google.maps.event.addListener(vecs, 'click', function() {
+		window.location.href = vecs.url;
+	});
+	
+	google.maps.event.addListener(vsci, 'click', function() {
+		window.location.href = vsci.url;
+	});
+	
+	google.maps.event.addListener(vfo, 'click', function() {
+		window.location.href = vfo.url;
+	});
+	
+	google.maps.event.addListener(vfsc, 'click', function() {
+		window.location.href = vfsc.url;
+	});
+	
+	google.maps.event.addListener(vlib, 'click', function() {
+		window.location.href = vlib.url;
+	});
+	
+	google.maps.event.addListener(vmcb, 'click', function() {
+		window.location.href = vmcb.url;
+	});
+	
+	google.maps.event.addListener(vpp, 'click', function() {
+		window.location.href = vpp.url;
+	});
+	
+	google.maps.event.addListener(vssc, 'click', function() {
+		window.location.href = vssc.url;
+	});
+
+	google.maps.event.addListener(Fountain, 'click', function() {
+		window.location.href = Fountain.url;
+	});
+	
+	google.maps.event.addListener(Rocks, 'click', function() {
+		window.location.href = Rocks.url;
+	});
+	
+	google.maps.event.addListener(Sculpture, 'click', function() {
+		window.location.href = Sculpture.url;
+	});
+	
+	google.maps.event.addListener(SportsFields, 'click', function() {
+		window.location.href = SportsFields.url;
+	});
+	
+	google.maps.event.addListener(BasketballCourt, 'click', function() {
+		window.location.href = BasketballCourt.url;
+	});
+	
+	google.maps.event.addListener(DiskGolfField, 'click', function() {
+		window.location.href = DiskGolfField.url;
+	});
+	
+	google.maps.event.addListener(OSI, 'click', function() {
+		window.location.href = OSI.url;
+			$('#directory').on('pageinit', function() {
+				$('#tabsList a:last').click();
+			});
+	});
+	
+	google.maps.event.addListener(FitnessCenter, 'click', function() {
+		window.location.href = FitnessCenter.url;
+			$('#directory').on('pageinit', function() {
+				$('#tabsList a:last').click();
+			});
+	});
+	
+	google.maps.event.addListener(ComputerLab2, 'click', function() {
+		window.location.href = ComputerLab2.url;
+			$('#directory').on('pageinit', function() {
+				$('#tabsList a:last').click();
+			});
+	});
+	
+	google.maps.event.addListener(ComputerLab3, 'click', function() {
+		window.location.href = ComputerLab2.url;
+			$('#directory').on('pageinit', function() {
+				$('#tabsList a:last').click();
+			});
+	});
+	
+	google.maps.event.addListener(ComputerLab4, 'click', function() {
+		window.location.href = ComputerLab2.url;
+			$('#directory').on('pageinit', function() {
+				$('#tabsList a:last').click();
+			});
+	});
+	
+// Calling Info Windows
+	
+	google.maps.event.addListener(PublicSafety, 'click', function(){
+		infowindow.open(map,PublicSafety);
+	});
+	
+	google.maps.event.addListener(ParkingServices, 'click', function(){
+		infowindow2.open(map,ParkingServices);
+	});
+	
+	google.maps.event.addListener(WritingCenter, 'click', function(){
+		infowindow3.open(map,WritingCenter);
+	});
+	
+	google.maps.event.addListener(MathLab, 'click', function(){
+		infowindow4.open(map,MathLab);
+	});
+
+	google.maps.event.trigger(map,'resize')
+
+}
+
+
+function toggleMarkers(attr,val) {
+    if (markers){
+        for (i in markers) {
+            if(markers[i].data[attr] == val){
+                var visibility = (markers[i].getVisible() == true) ? false : true;
+                markers[i].setVisible(visibility);
+            }
+        }
+    }
+}
+</script> <!--end script for google maps api-->
+
+<script><!-- script to make map reload each time user visits map page -->
+	$('#map').live("pageshow", function(event) {
+		initialize();
+	});
+</script>
+
+<script><!-- start directory scripts -->
+	$(document).on('pagecreate', function(event) {
+		$('#tabsList a').on('click', function() {
+			$('#tabsList a').removeClass('ui-btn-active');
+			$('#tabs').children().hide();
+			$('#' + $(this).attr('name')).show().trigger('updatelayout');
+			$(this).addClass('ui-btn-active');
+		});
+		$('#tabsList a:first').click();
+	}); //end tabbed content script
+
+	//start highlight search filter
+
+	
+	//start zebra rows
+	$('#departmentOffices, #studentAffairs').live('pageshow', function(){
+		$('.collapsibleDirectory div p:nth-child(odd)').addClass('alternate');
+	});//end zebra rows
+</script><!-- end directory scripts -->
+
+<script><!-- plugin for image gallery -->
+	$(document).on('pageinit', function(){
+		$('.slider').nivoSlider({
+			manualAdvance: true,
+			directionNavHide: false,
+			effect: 'fade',
+			animSpeed: 350,
+			controlNav: false
+			
+		});
+	}); // end ready
+</script>
+
+<script><!-- home page -->
+	$(document).delegate('#welcome', 'pageinit', function(){
+		var date = new Date();
+		var day = date.getDate();
+		var monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+		var month = monthNames[date.getMonth()];
+		var numberOfEvents = $('.' + month + day).length;
+		
+		$('#eventsCounter').text(numberOfEvents);
+	});
+</script>
+
+<script><!-- backpack note -->
+	
+	//local storage for notes
+		
+	$(document).delegate('#backpack', 'pageinit', function() {
+		$('#addNoteButton, #cancel').click(function() {
+			$('#save').attr('id', 'submit'); //change submit button for new notes
+			$('#noteForm, #displayBox,').fadeToggle(300);
+			$('#noteTitle').focus();
+		}); // end click
+
+		getAllNotes(); //load the items
+
+		$("#submit").live('click', function() {
+			var newDate = new Date();
+			var itemId = newDate.getTime(); //create new key for this localStorage entry
+			var values = new Array();
+			var title = $("#noteTitle").val();
+			var content = $("#noteContent").val();
+
+			values.push(title);
+			values.push(content); //store items in the new array
+
+			if (title != "" && content != "") { //if form not empty
+				localStorage.setItem(itemId, values.join(';')); //join items in array and save via localStorage
+				
+				$('#noteForm, #displayBox').fadeToggle(300);
+			} else {
+				alert("All fields are required.");
+			}
+			
+			getAllNotes(); //refresh
+		});
+			
+		$(".delete").live('click', function() {
+			var answer = confirm("Are you sure you want to delete this note?");
+
+			if (answer) {
+				var itemKey = $(this).attr("name"); //get item key
+				localStorage.removeItem(itemKey); //and delete it from localStorage
+
+				getAllNotes(); //refresh the list of items
+			}
+		});
+		
+		$('.edit').live('click', function() {
+			var itemKey = $(this).attr('name');
+			var values = localStorage.getItem(itemKey);
+			values = values.split(';'); //split items to use as form values
+			var title = values[0];
+			var content = values[1];
+			
+			$('#submit').attr('id','save'); //change submit button to save button
+			$('#noteForm, #displayBox').fadeToggle(300);
+			$('#noteTitle').val(title);
+			$('#noteContent').val(content);
+			
+			$('#save').live('click', function() { //new save button function: edits values and saves over old values
+				values[0] = $('#noteTitle').val(); //replaces values in array
+				values[1] = $('#noteContent').val();
+					
+				if ($('#noteTitle').val() != "" && $('#noteContent').val() != "") {
+					localStorage.setItem(itemKey, values.join(';')); //overwrite data with same key
+					$('#noteForm, #displayBox').fadeToggle(300);
+					location.reload(); //reload the page to refresh notes
+				} 
+				else {
+					alert("All fields are required.");
+				}
+			});
+			
+			getAllNotes(); //refresh
+		});
+	});// end local storage for notes
+	
+		
+	function getAllNotes() { //function to get/refresh notes
+		var timeLog = ""; //the variable that will hold our html
+		var i = 0;
+		var logLength = localStorage.length-1; //how many items are in the database starting with zero
+
+		//now we are going to loop through each item in the database
+		for (i = 0; i <= logLength; i++) {
+			//lets setup some variables for the key and values
+			var itemKey = localStorage.key(i);
+			var values = localStorage.getItem(itemKey);
+			values = values.split(";"); //create an array of the values
+			var title = values[0];
+			var content = values[1];
+
+			//now that we have the item, lets add it as a list item
+			timeLog += '<div data-role="collapsible"><h3>'+title+'</h3><div class="noteContent">'+content+'</div><button class="edit" data-inline="true" name="'+itemKey+'">Edit</button><button class="delete" data-inline="true" name="'+itemKey+'">Delete</button></div>';
+		}
+
+		//if there were no items in the database
+		if (timeLog == "")
+			timeLog = '<p class="empty">You don\'t currently have any saved notes.</p>';
+
+		$('#notes').html(timeLog); //update the ul with the list items
+		$('#backpack').trigger('create');
+	}
+	//end local storage
+</script>
+
+<script><!-- expand textarea as user types, move opened collapsible to top, -->
+function autoGrowField(f, max) {
+   /* Default max height */
+   var max = (typeof max == 'undefined')?1000:max;
+   /* Don't let it grow over the max height */
+   if (f.scrollHeight > max) {
+      /* Add the scrollbar back and bail */
+      if (f.style.overflowY != 'scroll') { f.style.overflowY = 'scroll' }
+      return;
+   }
+   /* Make sure element does not have scroll bar to prevent jumpy-ness */
+   if (f.style.overflowY != 'hidden') { f.style.overflowY = 'hidden' }
+   /* Now adjust the height */
+   var scrollH = f.scrollHeight;
+   if( scrollH > f.style.height.replace(/[^0-9]/g,'') ){
+      f.style.height = scrollH+'px';
+   }
+}
+// move collapsible to top of page when opened
+var lastExpanded;
+$('div.ui-collapsible').live('expand', function() {
+    var $expandable = $(this);
+    // wait until the lastExpanded is collapsed
+    var intervalId = setInterval(function() {
+        if (lastExpanded && lastExpanded.has( ".ui-collapsible-heading-collapsed" )) {
+            var expandableTop = $expandable.offset().top,
+            $window = $(window),
+            targetPos = expandableTop - $window.scrollTop() + $expandable.height();
+            if (targetPos > $window.height() || expandableTop < $window.scrollTop()) {
+                $.mobile.silentScroll(expandableTop);
+            }
+            clearInterval(intervalId);
+            lastExpanded = $expandable;
+        } else {
+            lastExpanded = $expandable;
+        }
+    }, 200);
+});
+</script>
+</head> 
+
+<body>
+
+<!-- start home page -->
+	<div data-role="page" id="welcome">
+		
+		<div class="homepage">
+			<div>
+				<img id="aswsuvLong2" src="images/aswsuvLong2.png" />
+				<img id="aswsuvstripe" src="images/aswsuvstripe.png" />
+			</div>
+			
+			<ul class="eventsAndNav">
+				<li><span id="eventsCounter"></span><a id="eventsSprite" href="#events" ></a>
+				</li>
+				<li><a id="mapIcon" href="#map" ></a></li>
+				<li><a id="directoryIcon" href="#directory" ></a></li>
+				<li><a id="backpackIcon" href="#backpack" ></a></li>
+				<li><a id="aboutIcon" href="#about" ></a></li>
+				<li><a id="connectIcon" href="https://www.facebook.com/ASWSUV"></a></li>
+			</ul>
+			<div class="copyright">
+				<span>Copyright (C) 2012 | ASWSUV and its Respective Contributors</span>
+			</div>
+		</div>
+		
+	</div><!-- end welcome page -->
+	
+<!-- start map page -->
+	<div data-role="page" id="map">
+		<div id="mapHeader" data-role="header">
+			<a href="#map" class="ui-btn-active ui-state-persist">Map View</a>
+			Map
+			<a href="#buildingList">List View</a>
+			<ul id="mapButtons">
+				<li class="mapnav" data-role="button" data-mini="true" onClick="toggleMarkers('category','academic')">Academics</li> 
+				<li class="mapnav" data-role="button" data-mini="true" onClick="toggleMarkers('category','pois')">POIs</li>
+				<li class="mapnav" data-role="button" data-mini="true" onClick="toggleMarkers('category','recreation')">Recreation</li>
+				<li class="mapnav" data-role="button" data-mini="true" onClick="toggleMarkers('category','buildings')">Buildings</li>
+			</ul>
+		</div>
+		
+		<div data-role="content" id="map_canvas">
+		</div>
+		
+		<div data-role="footer" class="footer" data-position="fixed" data-tap-toggle="false">
+			<div data-role="navbar">
+				<ul>
+					<li><a id="homeLink" href="#welcome" data-icon="homeIcon" >&nbsp;</a></li>
+					<li><a id="mapLink" href="#map" data-icon="mapIcon"  class="ui-btn-active ui-state-persist">&nbsp;</a></li>
+					<li><a id="eventsLink" href="#events" data-icon="eventsIcon" >&nbsp;</a></li>
+					<li><a id="backpackLink" href="#backpack" data-icon="backpackIcon" >&nbsp;</a></li>
+					<li><a id="directoryLink" href="#directory" data-icon="directoryIcon" >&nbsp;</a></li>
+				</ul>
+			</div>
+		</div>
+	</div><!--end maps page-->
+	
+<!-- start list page -->
+	<div data-role="page" id="buildingList">
+	<div data-role="header" class="header">
+		<a href="#map">Map View</a>
+			Building List
+		<a href="#buildingList" class="ui-btn-active ui-state-persist">List View</a>
+	</div>
+	
+	<div data-role="content">
+		<div data-role="controlgroup">
+			<a href="#den" data-role="button" >DEN | Dengerink Administration Building</a>
+			<a href="#ccw" data-role="button" >CCW | Clark College Building</a>
+			<a href="#cls" data-role="button" >CLS | Classroom Building</a>
+			<a href="#ecs" data-role="button" >ECS | Engineering & Computer Sciences Building</a>
+			<a href="#sci" data-role="button" >SCI | Life Sciences Building</a>
+			<a href="#fo" data-role="button" >FO | Facilities Operations Building</a>
+			<a href="#fsc" data-role="button" >FSC | Firstenburg Student Commons</a>
+			<a href="#lib" data-role="button" >LIB | Library Building</a>
+			<a href="#mcb" data-role="button" >MCB | McClaskey Building</a>
+			<a href="#mmc" data-role="button" >MMC | Multimedia Classroom Building</a>
+			<a href="#pp" data-role="button" >PP | Physical Plant Building</a>
+			<a href="#ssc" data-role="button" >SSC | Student Services Center</a>
+			<a href="#ub" data-role="button" >UB | Undergraduate Building</a>
+			<a href="#attractions" data-role="button" >Attractions</a>
+			<a href="#sportsfields" data-role="button" >Sports Fields</a>
+		</div>
+	</div>
+	
+	<div data-role="footer" class="footer" data-position="fixed" data-tap-toggle="false">
+			<div data-role="navbar">
+				<ul>
+					<li><a id="homeLink" href="#welcome" data-icon="homeIcon" >&nbsp;</a></li>
+					<li><a id="mapLink" href="#map" data-icon="mapIcon"  class="ui-btn-active ui-state-persist">&nbsp;</a></li>
+					<li><a id="eventsLink" href="#events" data-icon="eventsIcon" >&nbsp;</a></li>
+					<li><a id="backpackLink" href="#backpack" data-icon="backpackIcon" >&nbsp;</a></li>
+					<li><a id="directoryLink" href="#directory" data-icon="directoryIcon" >&nbsp;</a></li>
+				</ul>
+			</div>
+		</div>
+</div><!-- end building list -->
+	
+<!-- start events page -->
+	<div data-role="page" id="events">
+		<div data-role="header" class="header">
+			Events
+		</div>
+		
+		<div data-role="content">
+			<div id="eventsContainer" data-role="collapsible-set">
+				<div data-role="listview" style="margin-bottom: -8px;"><li>October</li></div>
+				<div data-role="collapsible" class="events Oct27 Nov3 Nov10 Nov17 Nov24 Dec1 Dec8 Dec15">
+					<h3>Indoor Soccer Team Coed</h3>
+					<strong>Date:</strong>10/27/12 - 12/15/12<br /><br />
+					<strong>Time:</strong> All Day<br /><br />
+					<strong>Location:</strong>Salmon Creek Indoor 110 NW 139th Street, Vancouver, Washington 98685<br /><br />
+					
+					<strong>Description:</strong> $25
+					OCTOBER 27 - DECEMBER 15
+					Games EVERY SATURDAY evening. Sign up by October 21 at Recreation Office
+				</div>
+				<div data-role="listview"><li>November</li></div>
+				<div data-role="collapsible" class="events Nov13 Nov14 Nov15 Nov16 Nov17 Nov18 Nov19 Nov20 Nov21 Nov22 Nov23 Nov24 Nov25 Nov26">
+					<h3>Front Desk Hiring</h3>
+					<strong>Date:</strong> 11/13/12 to 11/26/12<br /><br />
+					<strong>Time:</strong> All day, every day<br /><br />
+					<strong>Location:</strong> FirstenBurg Student Commons<br /><br />
+					
+					<strong>Description:</strong> Apply now to work at the OSI Front Desk Applications available in Office of Student Involvement (OSI) Firstenburg Student Commons<br />
+					Applications due by Monday, November 26, 5:00 p.m. @ OSI Front Desk Contact: Teresa Picchioni, Program Coordinator <a href="mailto:teresa.picchioni@vancouver.wsu.edu">teresa.picchioni@vancouver.wsu.edu</a>, <a href="tel:360.546.9527">360.546.9527</a>	
+				</div>
+				<div data-role="collapsible" class="events Nov13 Nov14 Nov15 Dec5 Dec6 Dec7">
+					<h3>Creative Media Board Application</h3>
+					<strong>Date:</strong> 11/13/12 to 12/7/12<br /><br />
+					<strong>Time:</strong> All day, every day<br /><br />
+					<strong>Location:</strong> Cougsync<br /><br />
+					The Creative Media Board is a new pilot program here at WSU Vancouver and is facilitated by the Director and Assistant Director of Communications for The Associated Students of Washington State University Vancouver (ASWSUV) that hopes to provide students with a vested interest in creative media to have fun while enhancing and building their academic and creative lives.
+					<br/>Apply <a href="https://orgsync.com/24924/forms/56639">here</a>
+					<strong>Description:</strong><br />
+				</div>
+				<div data-role="collapsible" class="events Nov17">
+					<h3>Tree Potting</h3>
+					<strong>Date:</strong> 11/17/12<br /><br />
+					<strong>Time:</strong> 8:30am - 1:30pm<br /><br />
+					<strong>Location:</strong> WSUV OSI<br /><br />
+					
+					<strong>Description:</strong> Does the environment mean something to you? Do you love how green the northwest is?
+					Help the Stream Team's efforts to plant new seedling trees and give back to our beautiful environment!
+					Get an awesome feeling of helping your planet AND a “Be Crimson, Go Green” windbreaker courtesy of ASWSUV!
+				</div>
+				<div data-role="collapsible" class="events Nov18">
+					<h3>$10 Source Rock Climbing</h3>
+					<strong>Date:</strong> 11/18/12<br /><br />
+					<strong>Time:</strong> 6:00pm - 9:00pm<br /><br />
+					<strong>Location:</strong> The Source Climbing Center 1118 Main Street, Vancouver, Washington 98660<br /><br />
+					
+					<strong>Description:</strong> Student $5/$10 with gear
+					Non-students $10/$15 without gear<br/>
+					Sign up at Recreation Office before 10/26<br/>
+					Contact: Jonathan Radar, <a href="tel:360-546-9532">360-546-9532</a>, <a href="mailto:osi.outdoorintern@vancouver.wsu.edu">osi.outdoorintern@vancouver.wsu.edu</a>
+				</div>
+				<div data-role="collapsible" class="events Nov27 Nov28 Nov29 Dec12 Dec13 Dec14">
+					<h3>Nutcracker Tickets</h3>
+					<strong>Date:</strong> 11/27/12 - 12/14/12<br /><br />
+					<strong>Time:</strong> All day<br /><br />
+					<strong>Location:</strong> Cashier Office<br /><br />
+					
+					<strong>Description:</strong> See the Oregon Ballet Theater's Nutcracker on December 15 at 7:30pm in the Keller Auditorium!
+					Tickets are $10 each, limit 2, limit 4 for families. Tickets on sale in VSSC on November 27 at 9am and November 28 at 1pm! 
+				</div>
+				<div data-role="collapsible" class="events Nov29">
+					<h3>Gingerbread Madness!</h3>
+					<strong>Date:</strong> 11/29/12<br /><br />
+					<strong>Time:</strong> 2:30pm - 4:30pm<br /><br />
+					<strong>Location:</strong>Firstenburg Student Commons<br /><br />
+					
+					<strong>Description:</strong> Join us in the FSC on Thursday, November 29 at 2:30 pm and build a gingerbread house or person!
+				</div>
+				<div data-role="collapsible" class="events Nov30">
+					<h3>Expand: Leadership Conference</h3>
+					<strong>Date:</strong> 11/30/12<br /><br />
+					<strong>Time:</strong> 11:45am - 3:30pm<br /><br />
+					<strong>Location:</strong> Firstenburg Student Commons<br /><br />
+					
+					<strong>Description:</strong> Join us on November 30th for a keynote and break-out sessions all surrounding the idea of developing quality leaders in their personal, academic and professional lives!<br/>
+					sign up <a href="http://studentaffairs.vancouver.wsu.edu/student-involvement/expand-leadership-conference">here</a>
+				</div>
+				<div data-role="listview"><li>December</li></div>
+				<div data-role="collapsible" class="events Dec3 Dec4 Dec5 Jan16 Jan17 Jan18">
+					<h3>Winterahwks Tickets!</h3>
+					<strong>Date:</strong> 12/3/12 - 1/18/13<br /><br />
+					<strong>Time:</strong>All Day<br /><br />
+					<strong>Location:</strong>OSI Front Desk<br /><br />
+					
+					<strong>Description:</strong> Game: Portland Winterhawks vs. Lethbridge Hurricanes on January 18 at 7pm in the Rose Garden.<br/>
+					Tickets are $5 per person. Limit 2 per student. Limit 4 for families. On sale at the OSI Front Desk starting December 3! 
+				</div>
+				<div data-role="listview"><li>January</li></div>
+				<div data-role="collapsible" class="events Jan7 Jan8 Jan9 Jan21 Jan22 Jan23">
+					<h3>$5 Trail Blazer Tickets</h3>
+					<strong>Date:</strong> 1/7/13 - 1/23/13<br /><br />
+					<strong>Time:</strong> 12:00pm - 1:15pm<br /><br />
+					<strong>Location:</strong> OSI Front Desk<br /><br />
+					
+					<strong>Description:</strong> Game Dates/Ticket Sales:<br/>
+					Ticket sale January 7th at 10am<br/>
+					vs. Bucks January 19th<br/>
+					Ticket sale January 10th at 3pm<br/>
+					vs. Pacers January 23rd
+				</div>
+				<div data-role="collapsible" class="events Jan27 Jan28 Jan29 Mar15 Mar16 Mar17 Mar24 May7">
+					<h3>Spring Semester Basketball Leauge </h3>
+					<strong>Date:</strong>1/27/13 - 3/17/13<br /><br />
+					<strong>Time:</strong> All day<br /><br />
+					<strong>Location:</strong> Firstenburg Student Commons<br /><br />
+					
+					<strong>Description:</strong> 5v5 $20
+					<ul><li>January 27 - March 17</li>
+					<li>Play offs March 24 & May 7</li>
+					<li>Sunday evening games</li>
+					<li>Firstenburg Community Center</li>
+					<li>Sign up at Rec Office by January 24</li>
+					</ul>
+					3v3 FREE
+					<ul><li>January 31 - February 28</li>
+					<li>Thursday Nights 8:00 - 10:00 pm</li>
+
+					<li>Alki Middle School</li>
+					<li>Sign up at Rec Office by January 25 as a team or free agent</li></ul>
+					Contact:
+					Oksana Klimenova  <a href="mailto:osi.imintern@vancouver.wsu.edu">osi.imintern@vancouver.wsu.edu</a> for more information
+				</div>
+				<div data-role="listview"><li>February</li></div>
+				<div data-role="collapsible" class="events Feb22 Feb23 Feb24">
+					<h3>Mt.Bachelor Ski Trip</h3>
+					<strong>Date:</strong> 2/22/13 - 2/24/13<br /><br />
+					<strong>Time:</strong> All day<br /><br />
+					<strong>Location:</strong>13000 SW Century Dr., Bend, Oregon 97702<br /><br />
+					<strong>Cost: </strong><br /><br />
+					
+					<strong>Description:</strong> Mt. Bachelor Ski Trip February 22-24, 2013<br/>
+					Pricing starting at $150<br/>
+					Sign up at Recreation Office. Space is limited. Sign up early to get discount rentals.<br/>
+					Sign up deadline January 18<br/>
+				</div>
+			</div>
+		</div>
+		
+		<div data-role="footer" data-position="fixed" data-tap-toggle="false" data-theme="a" class="footer">
+			<div data-role="navbar">
+				<ul>
+					<li><a id="homeLink" href="#welcome" data-icon="homeIcon" >&nbsp;</a></li>
+					<li><a id="mapLink" href="#map" data-icon="mapIcon" >&nbsp;</a></li>
+					<li><a id="eventsLink" href="#events" data-icon="eventsIcon"  class="ui-btn-active ui-state-persist">&nbsp;</a></li>
+					<li><a id="backpackLink" href="#backpack" data-icon="backpackIcon" >&nbsp;</a></li>
+					<li><a id="directoryLink" href="#directory" data-icon="directoryIcon" >&nbsp;</a></li>
+				</ul>
+			</div>
+		</div>
+	</div><!-- end events page -->
+	
+<!-- start backpack page -->
+	<div data-role="page" id="backpack">
+		<div data-role="header" class="header">
+			Notes
+		</div>
+		<div data-role="content">
+		
+			<div id="displayBox"></div>
+				
+			<div id="addNote">
+				<form id="noteForm">
+					<p>
+						<label for="title">Title:</label>
+						<input type="text" placeholder="enter your title here" name="title" id="noteTitle">
+					</p>
+					<p>
+						<label for="content">Content:</label>
+						<textarea class="textarea" rows="3" name="content" placeholder="enter content here" 
+							id="noteContent" required></textarea>
+					</p>
+					<p id="submit" data-role="button" data-inline="true">Submit</p>
+					<p id="cancel" data-role="button" data-inline="true">Cancel</p>
+				</form>
+			</div>
+			
+			<button id="addNoteButton">Add A New Note</button>
+			<div data-role="collapsible-set" id="notes">
+			</div>
+		
+		</div>
+		
+		<div data-role="footer" data-position="fixed" data-tap-toggle="false" class="footer">
+			<div data-role="navbar">
+				<ul>
+					<li><a id="homeLink" href="#welcome" data-icon="homeIcon" >&nbsp;</a></li>
+					<li><a id="mapLink" href="#map" data-icon="mapIcon" >&nbsp;</a></li>
+					<li><a id="eventsLink" href="#events" data-icon="eventsIcon" >&nbsp;</a></li>
+					<li><a id="backpackLink" href="#backpack" data-icon="backpackIcon"  class="ui-btn-active ui-state-persist">&nbsp;</a></li>
+					<li><a id="directoryLink" href="#directory" data-icon="directoryIcon" >&nbsp;</a></li>
+				</ul>
+			</div>
+		</div>
+	</div><!-- end backpack page -->
+	
+<!-- start about page -->
+	<div data-role="page" id="about">
+		<div class="header" data-role="header">
+			<a href="#welcome" class="backBtn" data-rel="back" data-role="button" data-iconpos="notext" data-icon="arrow-l">Back</a>
+			About
+		</div>
+		
+		
+		<div data-role="content">
+			
+			<h4>Learn about this app's features:</h4>
+			<ul>
+				<li>Each button above the map toggles a different set of markers.</li>
+				<li>All of the building markers are linked to information about that building, including 
+				an image gallery. Some other markers have info windows that pop up after being tapped.</li>
+				<li>The 'Events' page holds all of the events for the upcoming months. Additionally, the 
+				'Events' icon on the home page tells you how many events are scheduled for today.</li>
+				<li>You can take notes on the 'Notes' page and save them for later.</li>
+				<li>The 'Directory' page holds information about all of the staff and services on campus, 
+				including Student Affairs and ASWSUV and OSI.</li>
+			</ul>
+			
+			<div>
+				<h4>About This App</h4>
+				<p>The ASWSUV app was originally was created by Mike Scoggins, Zak Steltz, 
+				and Melody Jensen in Fall 2011 for a class project as 'WSU Vancouver Tour', 
+				an app only available in the iphone app store. Over the following summer, 
+				Mike teamed up with ASWSUV Director of Communications Derick Lock to revamp 
+				the app and publish it as a student utility with the full support of ASWSUV for 
+				the purpose of making it easier for students to navigate the campus and get involved.</p>
+			</div>
+			
+			<div>
+				<h4>Give us Feedback</h4>
+				<p>If you have any suggestions for changes to this app or for the ASWSUV in general, 
+				we encourage you to give us feedback by emailing us at 
+				<a href="mailto:aswsuv.dpr@vancouver.wsu.edu?subject=ASWSUV%20Feedback">aswsuv.dpr@vancouver.wsu.edu.</a></p>
+			</div>
+			
+			<div>
+				<h4>Report a problem</h4>
+				<p>Likewise, if you notice a problem with the app or some part of the app doesn't work for you, 
+				we encourage you to alert us of the problem by emailing us at 
+				<a href="mailto:aswsuv.dc@vancouver.wsu.edu">aswsuv.dc@vancouver.wsu.edu.</a></p>
+			</div>
+			
+			<div class="copyright">
+				<span>Copyright (C) 2012 | ASWSUV and its Respective Contributors</span>
+			</div>
+		</div>
+		
+		<div data-role="footer" class="footer" data-position="fixed" data-tap-toggle="false">
+			<div data-role="navbar">
+				<ul>
+					<li><a id="homeLink" href="#welcome" data-icon="homeIcon" >&nbsp;</a></li>
+					<li><a id="mapLink" href="#map" data-icon="mapIcon" >&nbsp;</a></li>
+					<li><a id="eventsLink" href="#events" data-icon="eventsIcon" >&nbsp;</a></li>
+					<li><a id="backpackLink" href="#backpack" data-icon="backpackIcon" >&nbsp;</a></li>
+					<li><a id="directoryLink" href="#directory" data-icon="directoryIcon" >&nbsp;</a></li>
+				</ul>
+			</div>
+		</div>
+	</div>
+
+<!-- Start directory page -->
+	<div data-role="page" id="directory">
+		<div data-role="header" class="header">
+			Directory
+			<div data-role="navbar" data-tap-toggle="false">
+				<ul id="tabsList"><!-- list for the tabs -->
+					<li><a name="officesPanel" href="#" class="ui-btn-active">Offices</a></li>
+					<li><a name="foodShoppingPanel" href="#">Food/Shopping</a></li>
+					<li><a name="servicesPanel" href="#">Services</a></li>
+				</ul><!-- end tabs list -->
+			</div>
+		</div>
+		<div id="tabs" data-role="content"><!-- holds all tabbed panel content -->
+			<div id="officesPanel" class="panel">
+				<a href="#departmentOffices" class="directoryButton" data-role="button">Department Offices</a>
+				<a href="#studentAffairs" class="directoryButton" data-role="button">Student Affairs</a>
+				<a href="#aswsuvOsi" class="directoryButton" data-role="button">ASWSUV/OSI</a>
+			</div>
+			<div id="foodShoppingPanel" class="panel">
+				<H3>The Bookstore</H3>
+					
+				<p>Hours: Monday-Thursday from 9:00am to 6:00pm and Friday from 9:00am to 5:00pm</p>
+				
+				<p>This is the campus bookstore, which is located on the bottom floor of the SRC. Here you 
+				can find textbooks for your classes, school supplies, WSUV gear and other class materials. 
+				The Bookie also buys back textbooks at the end of each semester, even if you didn't buy them 
+				from the campus bookstore.</p>
+				
+				<H3>The Cafeteria</H3>
+					
+				<p>Dengerink Administration Building (VDEN)<br />
+				Hours are Mon-Thur 8:00am-6:00pm and Fri 8:00am-4:00pm</p>
+					
+				<p>The campus cafeteria makes great sandwiches, burgers, chicken strips and much more. It 
+				is also a great place to study and meet together with friends. The cafeteria also has a 
+				microwave if you need to heat up your lunch, coffee or cup of noodles.</p>
+						
+				<H3>Commons Cafe</H3>
+						
+				<p>Firstenburg Student Commons<br />
+				Hours vary</p>
+						
+				<p>This is a small cafe located in the corner of the student commons. If you are hungry 
+				while studying, playing ping-pon or just hanging out, this convenient cafe is here to 
+				satiate.</p>
+			</div>
+			<div id="servicesPanel" class="panel">
+				<H3>Recreation</H3>
+				
+				<p>FIrstenburg student commons on the side closest to VSCI</p>
+					
+				<p>The Recreation Office is the place where students can get resources for outdoor activities. 
+				Here students can sign up for trips, sports games, and rent equipment. We also have a 
+				basketball court, soccer fields and 
+				a disc golf field. There are also many trails for you and your friends to explore and 
+				observe wildlife from. If thats not enough, check out the events page for upcoming rec 
+				events. Have fun.</p>
+				
+				<h3>Fitness Center</h3>
+				
+				<p>Basement floor of Libray, between VLIB and VMMC</p>
+				
+				<p>The Fitness Center is an excellent place to work on your cardio or tone your body.
+				This 2,340 sq. ft. room includes treadmills, stationary bikes, free weights and more to help
+				keep you in shape. In addition to equipment, the Fitness Center also offers group classes,
+				personal trainers and other ways to stay healthy and fit. To learn more, stop on in or check 
+				out their web page onlin.e</p>
+				
+				<H3>Computer Labs</H3>
+				
+				<p>Located in VMMC, VCLS, VLIB, and VCCW.</p>
+				
+				<p>There are several computer labs around campus that are open to all students and faculty which 
+				are fully equipped with Macs and/or PCs which include many different programs to help with 
+				projects and hw. If you have trouble you 
+				can always speak to the supervisor. There are also printers in these labs.</p>
+				
+				<H3>Parking Services</H3>
+				
+				<p>VPP</p>
+				
+				<p>You can buy your parking passes and pay off parking tickets in the Parking Services 
+				Office. The lost and found is also located in this office.</p>
+				
+				<H3>Library</H3>
+				
+				<p>VLIB</p>
+				
+				<p>The WSUV library may not have many books, but we have access to numerous online 
+				databases and the library staff is very knowledgeable about navigating the resources. 
+				They can help you find a good start on your research. There are also several study 
+				spaces and computers for homework.</p>
+				
+				<H3>Campus Security</H3>
+				
+				<p>VDEN, on the side facing the courtyard between VDEN and VCLS.<br />
+				Emergency Towers located around campus.</p>
+				
+				<p>The campus police offer many services to students free of charge 
+				such as escorts to your car, accessing your car if you are locked out, and jump 
+				starting your car if it dies. The Police on campus are commissioned policeman of 
+				the state and work hard to prevent crime. For emergencies, call 911 on any 
+				campus phone. To reach the campus police office, call <a href="tel:3605469001">(360) 546-9001.</a></p>
+			</div><!-- end panels-->
+		</div><!-- end content -->
+		<div data-role="footer" data-position="fixed" data-tap-toggle="false" class="footer">
+			<div data-role="navbar">
+				<ul>
+					<li><a id="homeLink" href="#welcome" data-icon="homeIcon" >&nbsp;</a></li>
+					<li><a id="mapLink" href="#map" data-icon="mapIcon" >&nbsp;</a></li>
+					<li><a id="eventsLink" href="#events" data-icon="eventsIcon" >&nbsp;</a></li>
+					<li><a id="backpackLink" href="#backpack" data-icon="backpackIcon" >&nbsp;</a></li>
+					<li><a id="directoryLink" href="#directory" data-icon="directoryIcon"  class="ui-btn-active ui-state-persist">&nbsp;</a></li>
+				</ul>
+			</div>
+		</div>
+	</div><!-- End directory page -->
+
+<!-- Start department offices page -->
+	<div data-role="page" id="departmentOffices">
+		<div data-role="header" style="margin-bottom:15px;" class="header">
+			<a href="#directory" data-role="button" data-iconpos="notext" data-icon="arrow-l"></a>
+			Department Offices
+		</div>
+		<div data-role="collapsible-set">
+		<div id="search" data-role="listview" data-inset="true" data-filter="true">
+			<div class="collapsibleDirectory" data-role="collapsible">
+				<H3>Accounting</H3>
+				<p>Tyee Carr, Visiting professor<br />
+				Phone: <a href="tel:3605469264">360-546-9264</a><br />
+				Location: VCLS 308 A<br />
+				Email: <a href="mailto:tjcarr@vancouver.wsu.edu">tjcarr@vancouver.wsu.edu</a></p>
+				
+				<p>Jane Cote, Acedemic Director - College of Business<br />
+				Phone: <a href="tel:3605469756">360-546-9756</a><br />
+				Location: VCLS 308 D<br />
+				Email: <a href="mailto:janecote@vancouver.wsu.edu">janecote@vancouver.wsu.edu</a></p>
+				
+				<p>Claire Kamm Latham, Associate Professor<br />
+				Phone: <a href="tel:3605469757">360-546-9757</a><br />
+				Location: VCLS 308 Q<br />
+				Email: <a href="mailto:clatham@vancouver.wsu.edu">clatham@vancouver.wsu.edu</a></p>
+				
+				<p>Brian Routh, Faculty and IMA Faculty Advisor<br />
+				Phone: <a href="tel:3605469338">360-546-9338</a><br />
+				Location: VCLS 308 T<br />
+				Email: <a href="mailto:routh@vancouver.wsu.edu">routh@vancouver.wsu.edu</a></p>
+				
+				<p>Debra Sanders, Professor, Associate Director, Master of Program<br />
+				Phone: <a href="tel:3605469147">360-546-9147</a><br />
+				Location: VCLS 308 F<br />
+				Email: <a href="mailto:dsanders@vancouver.wsu.edu">dsanders@vancouver.wsu.edu</a></p>
+				
+				<p>Ben Kulp, Acedemic Coordinator<br />
+				Phone: <a href="tel:3605469551">360-546-9551</a><br />
+				Location: VCLS 308 B<br />
+				Email: <a href="mailto:van.cbadvising@vancouver.wsu.edu">van.cbadvising@vancouver.wsu.edu</a></p>
+				
+				<p>Mary Stender, Acedemic Coordinator<br />
+				Phone: <a href="tel:3605469751">360-546-9751</a><br />
+				Location: VCLS 308 C<br />
+				Email: <a href="mailto:mstender@vancouver.wsu.edu">mstender@vancouver.wsu.edu</a></p>
+			</div>
+			
+			<div class="collapsibleDirectory" data-role="collapsible">
+				<H3>Anthropology</H3>
+				<p>Edward Hagen Ph.D., Associate Professor<br />
+				Phone: <a href="tel:3605469257">360-546-9257</a><br />
+				Location: VMMC 102 E<br />
+				Email: <a href="mailto:edhagen@vancouver.wsu.edu">edhagen@vancouver.wsu.edu</a></p>
+				
+				<p>Barry Hewlett Ph.D., Professor<br />
+				Phone: <a href="tel:3605469449">360-546-9449</a><br />
+				Location: VMMC 202 R<br />
+				Email: <a href="mailto:hewlett@vancouver.wsu.edu">hewlett@vancouver.wsu.edu</a></p>
+				
+				<p>Bonnie Hewlett Ph.D. RN, Visiting Professor<br />
+				Phone: <a href="tel:3605469441">360-546-9441</a><br />
+				Location: VMMC 202 P<br />
+				Email: <a href="mailto:hewlettb@vancouver.wsu.edu">hewlettb@vancouver.wsu.edu</a></p>
+				
+				<p>Steven Weber Ph.D., Associate Professor<br />
+				Phone: <a href="tel:3605469734">360-546-9734</a><br />
+				Location: VMMC 202 M<br />
+				Email: <a href="mailto:webersa@vancouver.wsu.edu">webersa@vancouver.wsu.edu</a></p>
+				
+				<p>Clare M. Wilkinson-Weber, Assistant Professor<br />
+				Phone: <a href="tel:3605469574">360-546-9574</a><br />
+				Location: VMMC 103 C<br />
+				Email: <a href="mailto:cmweber@vancouver.wsu.edu">cmweber@vancouver.wsu.edu</a></p>
+				
+				<p>Linda Campbell, Secretary Senior<br />
+				Phone: <a href="tel:3605469441">360-546-9441</a><br />
+				Location: VMMC 102<br />
+				Email: <a href="mailto:lk_campbell@vancouver.wsu.edu">lk_campbell@vancouver.wsu.edu</a></p>
+				
+				<p>Alyssa Dart, Acedemic Coordinator<br />
+				Phone: <a href="tel:3605469451">360-546-9451</a><br />
+				Location: VSCI 103 D<br />
+				Email: <a href="mailto:darta@vancouver.wsu.edu">darta@vancouver.wsu.edu</a></p>
+				
+				<p>Shellynda Michalek, Acedemic Coordinator Support<br />
+				Phone: <a href="tel:3605469106">360-546-9106</a><br />
+				Location: VSCI 130<br />
+				Email: <a href="mailto:michaleksj@vancouver.wsu.edu">michaleksj@vancouver.wsu.edu</a></p>
+			</div>
+			
+			<div class="collapsibleDirectory" data-role="collapsible">
+				<h3>Biological Sciences</H3>
+				<p>Dawn Banker Ph.D., Clinical Associate Professor<br />
+				Phone: <a href="tel:3605469478">360-546-9478</a><br />
+				Location: VSCI 230<br />
+				Email: <a href="mailto:bankerd@vncouver.wsu.edu">bankerd@vncouver.wsu.edu</a></p>
+				
+				<p>Dr. John Bishop, Professor<br />
+				Phone: <a href="tel:3605469612">360-546-9612</a><br />
+				Location: VSCI 230<br />
+				Email: <a href="mailto:bishopj@vancouver.wsu.edu">bishopj@vancouver.wsu.edu</a></p>
+				
+				<p>Ruth Phillips, Adjunct Research Professor<br />
+				Phone: <a href="tel:3605469505">360-546-9505</a><br />
+				Location: VSCI 215<br />
+				Email: <a href="mailto:phillipsr@vancouver.wsu.edu">phillipsr@vancouver.wsu.edu</a></p>
+				
+				<p>Dr. Christine Portfors, Associate Professor<br />
+				Phone: <a href="tel:3605469434">360-546-9434</a><br />
+				Location: VCLS 208 M<br />
+				Email: <a href="mailto:portfors@vancouver.wsu.edu">portfors@vancouver.wsu.edu</a></p>
+				
+				<p>Dr. Gretchen Rollwagon-Bollens, Clinical Associate Professor<br />
+				Phone: <a href="tel:3605469115">360-546-9115</a><br />
+				Location: VSCI 230 A<br />
+				Email: <a href="mailto:rollboll@vancouver.wsu.edu">rollboll@vancouver.wsu.edu</a></p>
+				
+				<p>Dr. Cheryl Schultz, Associate Professor<br />
+				Phone: <a href="tel:3605469525">360-546-9525</a><br />
+				Location: VSCI 230<br />
+				Email: <a href="mailto:schultzc@vancouver.wsu.edu">schultzc@vancouver.wsu.edu</a></p>
+				
+				<p>Jenefer DeKoning Ph.D., Scientific Assistant, Adjunct Professor<br />
+				Phone: <a href="tel:3605469504">360-546-9504</a><br />
+				Location: VSCI 213<br />
+				Email: <a href="mailto:dekoning@vancouver.wsu.edu">dekoning@vancouver.wsu.edu</a></p>
+				
+				<p>Paul Joseph, Chemistry Instructer<br />
+				Phone: <a href="tel:3609102301">360-910-3201</a><br />
+				Location: VLIB 21 L<br />
+				Email: <a href="mailto:paul.joseph@pcc.edu">paul.joseph@pcc.edu</a></p>
+				
+				<p>Bob Blackman, Professional Worker<br />
+				Phone: <a href="tel:3605469627">360-546-9627</a><br />
+				Location: VSCI 230<br />
+				Email: <a href="mailto:blackman@vancouver.wsu.edu">blackman@vancouver.wsu.edu</a></p>
+				
+				<p>Diane DiVittorio, Undergrad Acedemic Advisor<br />
+				Phone: <a href="tel:3605469624">360-546-9624</a><br />
+				Location: VSCI 130 C<br />
+				Email: <a href="mailto:diane.divittorio@vancouver.wsu.edu">diane.divittorio@vancouver.wsu.edu</a></p>
+				
+				<p>Dawn Freeman, Laboratory Technician<br />
+				Phone: <a href="tel:3605469628">360-546-9628</a><br />
+				Location: VSCI 110<br />
+				Email: <a href="mailto:dmfreeman@vancouver.wsu.edu">dmfreeman@vancouver.wsu.edu</a></p>
+			
+				<p>Sherry Swayze, Senior Secretary<br />
+				Phone: <a href="tel:3605469636">360-546-9636</a><br />
+				Location: VSCI 230 C<br />
+				Email: <a href="mailto:sswayze@vancouver.wsu.edu">sswayze@vancouver.wsu.edu</a></p>
+			</div>
+			
+			<div class="collapsibleDirectory" data-role="collapsible">
+				<H3>Child Development Program</H3>
+				<p>Kathy Austin, Early Childhood Program Specialist<br />
+				Phone: <a href="tel:3605469722">360-546-9722</a><br />
+				Location: VMCB 120<br />
+				Email: <a href="mailto:kathryn_austin@vancouver.wsu.edu">kathryn_austin@vancouver.wsu.edu</a></p>
+				
+				<p>Kelsey Day, Lead Kindergarten Teacher<br />
+				Phone: <a href="tel:3605469722">360-546-9722</a><br />
+				Location: VMCB 103<br />
+				Email: <a href="mailto:kelsey.day@vancouver.wsu.edu">kelsey.day@vancouver.wsu.edu</a></p>
+				
+				<p>Lynn Denn, Early Childhood Program Specialist<br />
+				Phone: <a href="tel:3605469722">360-546-9722</a><br />
+				Location: VMCB 117 W<br />
+				Email: <a href="mailto:lynn_dunn@vancouver.wsu.edu">lynn_dunn@vancouver.wsu.edu</a></p>
+				
+				<p>Amy Johnson, Kindergarten Teacher<br />
+				Phone: <a href="tel:3605469722">360-546-9722</a><br />
+				Location: VMCB 103<br />
+				Email: <a href="mailto:Amyjo6226@vancouver.wsu.edu">Amyjo6226@vancouver.wsu.edu</a></p>
+				
+				<p>Cheryl Johnson, Program Coordinator<br />
+				Phone: <a href="tel:3605469722">360-546-9722</a><br />
+				Location: VMCB 121<br />
+				Email: <a href="mailto:cheryl_johnson@vancouver.wsu.edu">cheryl_johnson@vancouver.wsu.edu</a></p>
+				
+				<p>Michelle Silvey, Specialist<br />
+				Phone: <a href="tel:3605469722">360-546-9722</a><br />
+				Location: VMCB 117<br />
+				Email: <a href="mailto:meshell@vancouver.wsu.edu">meshell@vancouver.wsu.edu</a></p>
+				
+				<p>Steven VanDyke, Specialist<br />
+				Phone: <a href="tel:3605469722">360-546-9722</a><br />
+				Location: VMCB 117 W<br />
+				Email: <a href="mailto:svandyke@vancouver.wsu.edu">svandyke@vancouver.wsu.edu</a></p>
+			</div>
+			
+			<div class="collapsibleDirectory" data-role="collapsible">
+				<H3>Communication</H3>
+				<p>Dr. Brett Oppengaard, Assistant Professor<br />
+				Phone: <a href="tel:3605218150">360-521-8150</a><br />
+				Location: VMMC 202 W<br />
+				Email: <a href="mailto:brett_oppengaard@vancouver.wsu.edu">brett_oppengaard@vancouver.wsu.edu</a></p>
+				
+				<p>Dr. Kelly J. Brennan, Professor<br />
+				Phone: <a href="tel:5034751116">503-475-1116</a><br />
+				Location: VMMC 102 P<br />
+				Email: <a href="mailto:brennan@wsu.edu">brennan@wsu.edu</a></p>
+				
+				<p>Dr. Michael Rabby, Lecturer<br />
+				Phone: <a href="tel:3605469788">360-546-9788</a><br />
+				Location: VMMC 111<br />
+				Email: <a href="mailto:mkrabby1@gmail.com">mkrabby1@gmail.com</a></p>
+				
+				<p>Linda Campbell, Secretary Senior<br />
+				Phone: <a href="tel:3605469441">360-546-9441</a><br />
+				Location: VMMC 102<br />
+				Email: <a href="mailto:lk_campbell@vancouver.wsu.edu">lk_campbell@vancouver.wsu.edu</a></p>
+				
+				<p>Shellynda Michalek, Acedemic Coordinator Support<br />
+				Phone: <a href="tel:3605469106">360-546-9106</a><br />
+				Location: VSCI 130<br />
+				Email: <a href="mailto:michaleksj@vancouver.wsu.edu">michaleksj@vancouver.wsu.edu</a></p>
+			</div>
+			
+			<div class="collapsibleDirectory" data-role="collapsible">
+				<H3>Computer Science</H3>
+				<p>David Chiu, Assistant Professor<br />
+				Phone: <a href="tel:3605469631">360-546-9631</a><br />
+				Location: VECS 201 V<br />
+				Email: <a href="mailto:david.chiu@vancouver.wsu.edu">david.chiu@vancouver.wsu.edu</a></p>
+				
+				<p>Wayne O. Cochran, Clinical Assistant Professor<br />
+				Phone: <a href="tel:3605469463">360-546-9463</a><br />
+				Location: VECS 301 H<br />
+				Email: <a href="mailto:wcochran@vancouver.wsu.edu">wcochran@vancouver.wsu.edu</a></p>
+				
+				<p>Thanh Dang Ph.D., Assistant Professor<br />
+				Phone: <a href="tel:3605469183">360-546-9183</a><br />
+				Location: VECS 201 Q<br />
+				Email: <a href="mailto:thanh_dang@wsu.edu">thanh_dang@wsu.edu</a></p>
+				
+				<p>Dick Lang Ph.D., Cliniccal Professor and Coordinator<br />
+				Phone: <a href="tel:3605469632">360-546-9632</a><br />
+				Location: VECS 301 J<br />
+				Email: <a href="mailto:dick_lang@vancouver.wsu.edu">dick_lang@vancouver.wsu.edu</a></p>
+				
+				<p>Sarah Mocas Ph.D., Instructer<br />
+				Phone: <a href="tel:3605469228">360-546-9228</a><br />
+				Location: VECS 301 F<br />
+				Email: <a href="mailto:smocas@vancouver.wsu.edu">dick_lang@vancouver.wsu.edu</a></p>
+				
+				<p>Scott Wallace, Associate Professor<br />
+				Phone: <a href="tel:3605469112">360-546-9112</a><br />
+				Location: VECS 201 U<br />
+				Email: <a href="mailto:wallaces@vancouver.wsu.edu">wallaces@vancouver.wsu.edu</a></p>
+				
+				<p>Xinghui Zhao Ph.D., Assistant Professor<br />
+				Phone: <a href="tel:3605469110">360-546-9110</a><br />
+				Location: VECS 201 X<br />
+				Email: <a href="mailto:x.zhao@wsu.edu">x.zhao@wsu.edu</a></p>
+			</div>
+			
+			<div class="collapsibleDirectory" data-role="collapsible">
+				<H3>Creative Media and Digital Culture</H3>
+				<p>John F. Barber, Ph.D., Faculty<br />
+				Phone: <a href="tel:3605469645">360-546-9645</a><br />
+				Location: VMMC 211 A<br />
+				Email: <a href="mailto:jfbarber@vancouver.wsu.edu">jfbarber@vancouver.wsu.edu</a></p>
+				
+				<p>Dene Grigar Ph.D., Director and Associate Professor<br />
+				Phone: <a href="tel:3605469487">360-546-9487</a><br />
+				Location: VMMC 211 A<br />
+				Email: <a href="mailto:dgrigar@vancouver.wsu.edu">dgrigar@vancouver.wsu.edu</a></p>
+				
+				<p>Will Luers, Visiting Professor<br />
+				Phone: <a href="tel:5039753254">503-975-3254</a><br />
+				Location: VMMC 211 A<br />
+				Email: <a href="mailto:wluers@gmail.com">wluers@gmail.com</a></p>
+				
+				<p>Dr. Brett Oppengaard, Assistant Professor<br />
+				Phone: <a href="tel:3605218150">360-521-8150</a><br />
+				Location: VMMC 202 W<br />
+				Email: <a href="mailto:brett_oppengaard@vancouver.wsu.edu">brett_oppengaard@vancouver.wsu.edu</a></p>
+				
+				<p>Jeremy Hight, Adjunct Faculty<br />
+				Phone: <a href="tel:3605469445">360-546-9445</a><br />
+				Location: VMMC 102 P<br />
+				Email: <a href="mailto:jeremy.hight@wsu.edu">jeremy.hight@wsu.edu</a></p>
+				
+				<p>Linda Campbell, Secretary Senior<br />
+				Phone: <a href="tel:3605469441">360-546-9441</a><br />
+				Location: VMMC 102<br />
+				Email: <a href="mailto:lk_campbell@vancouver.wsu.edu">lk_campbell@vancouver.wsu.edu</a></p>
+				
+				<p>Shellynda Michalek, Acedemic Coordinator Support<br />
+				Phone: <a href="tel:3605469106">360-546-9106</a><br />
+				Location: VSCI 130<br />
+				Email: <a href="mailto:michaleksj@vancouver.wsu.edu">michaleksj@vancouver.wsu.edu</a></p>
+				
+				<p>Teresa Phimister, Acedemic Coordinator<br />
+				Phone: <a href="tel:3605469664">360-546-9664</a><br />
+				Location: VSCI 130<br />
+				Email: <a href="mailto:phimister@vancouver.wsu.edu">phimister@vancouver.wsu.edu</a></p>
+			</div>
+			
+			<div class="collapsibleDirectory" data-role="collapsible">
+				<H3>Criminal Justice</H3>
+				<p>Laurie A. Drapela Ph.D., Associate Professor<br />
+				Phone: <a href="tel:3605469485">360-546-9485</a><br />
+				Location: VCLS 208 N<br />
+				Email: <a href="mailto:ldrapela@vancouver.wsu.edu">ldrapela@vancouver.wsu.edu</a></p>
+				
+				<p>Darryl S. Wood Ph.D., Associate Professor<br />
+				Phone: <a href="tel:3605469255">360-546-9255</a><br />
+				Location: VMMC 201 W<br />
+				Email: <a href="mailto:darrlywood@vancouver.wsu.edu">darrlywood@vancouver.wsu.edu</a></p>
+				
+				<p>Whitney L. Hafer, Adjunct Professor<br />
+				Phone: <a href="tel:3605469445">360-546-9445</a><br />
+				Location: VMMC 102 P<br />
+				Email: <a href="mailto:whitney.hafer@email.wsu.edu">whitney.hafer@email.wsu.edu</a></p>
+				
+				<p>Jeff Olson, Adjunct Instructer<br />
+				Phone: <a href="tel:3605469640">360-546-9640</a><br />
+				Location: VMMC 102 P<br />
+				Email: <a href="mailto:jeff.olson@vancouver.wsu.edu">jeff.olson@vancouver.wsu.edu</a></p>
+				
+				<p>Annette Bradstreet, Program Assistant<br />
+				Phone: <a href="tel:3605469640">360-546-9640</a><br />
+				Location: VMMC 102 P<br />
+				Email: <a href="mailto:annette.bradstreet@vancouver.wsu.edu">annette.bradstreet@vancouver.wsu.edu</a></p>
+				
+				<p>Shellynda Michalek, Acedemic Coordinator Support<br />
+				Phone: <a href="tel:3605469106">360-546-9106</a><br />
+				Location: VSCI 130<br />
+				Email: <a href="mailto:michaleksj@vancouver.wsu.edu">michaleksj@vancouver.wsu.edu</a></p>
+			</div>
+			
+			<div class="collapsibleDirectory" data-role="collapsible">
+				<H3>Critical Culture, Gender and Race Studies</H3>
+				<p>Dr. Luz Mar&#237;a Gordillo, Associate Professor<br />
+				Phone: <a href="tel:3605469099">360-546-9099</a><br />
+				Location: VMMC 202 U<br />
+				Email: <a href="mailto:gordillo@wsu.edu">gordillo@wsu.edu</a></p>
+				
+				<p>Pavithra Narayanan, Associate Professor<br />
+				Phone: <a href="tel:3605469732">360-546-9732</a><br />
+				Location: VMMC 202 F<br />
+				Email: <a href="mailto:pavitraa@vancouver.wsu.edu">pavitraa@vancouver.wsu.edu</a></p>
+				
+				<p>Carol Siegel, Professor<br />
+				Phone: <a href="tel:3605469641">360-546-9641</a><br />
+				Location: VMMC SS202<br />
+				Email: <a href="mailto:siegel@vancouver.wsu.edu">siegel@vancouver.wsu.edu</a></p>
+				
+				<p>Dr. Courtney Smith, Adjunct Instructor<br />
+				Phone: <a href="tel:3605469445">360-546-9445</a><br />
+				Location: VMMC 102 P<br />
+				Email: <a href="mailto:c.smith@vancouver.wsu.edu">c.smith@vancouver.wsu.edu</a></p>
+				
+				<p>Shellynda Michalek, Acedemic Coordinator Support<br />
+				Phone: <a href="tel:3605469106">360-546-9106</a><br />
+				Location: VSCI 130<br />
+				Email: <a href="mailto:michaleksj@vancouver.wsu.edu">michaleksj@vancouver.wsu.edu</a></p>
+			</div>
+			
+			<div class="collapsibleDirectory" data-role="collapsible">
+				<H3>Education</H3>
+				<p>Margaret H. Bates, Director of Field Experiences/Placement Coordinator<br />
+				Phone: <a href="tel:3605469678">360-546-9678</a><br />
+				Location: VUB 364<br />
+				Email: <a href="mailto:maggie.bates@vancouver.wsu.edu">maggie.bates@vancouver.wsu.edu</a></p>
+				
+				<p>Dr. June Canty, Professor<br />
+				Phone: <a href="tel:3605469108">360-546-9108</a><br />
+				Location: VUB 347<br />
+				Email: <a href="mailto:jcanty@vancouver.wsu.edu">jcanty@vancouver.wsu.edu</a></p>
+				
+				<p>Deanna Day, Associate Professor<br />
+				Phone: <a href="tel:3605469667">360-546-9667</a><br />
+				Location: VUB 340<br />
+				Email: <a href="mailto:dday-wiff@vancouver.wsu.edu">dday-wiff@vancouver.wsu.edu</a></p>
+				
+				<p>Dr. William T. Doenecke, University Field Supervisor and Adjunct Professor<br />
+				Phone: <a href="tel:3605462658">360-546-2658</a><br />
+				Location: VUB 320<br />
+				Email: <a href="mailto:wsubilldoenecke@comcast.net">wsubilldoenecke@comcast.net</a></p>
+				
+				<p>Michael Dunn, Associate Professor of Special Education & Literacy<br />
+				Phone: <a href="tel:3605469662">360-546-9662</a><br />
+				Location: VUB 331<br />
+				Email: <a href="mailto:dunnmi@vancouver.wsu.edu">dunnmi@vancouver.wsu.edu</a></p>
+				
+				<p>Gisela Ernst-Slavit Ph.D., Professor and ELL Endorsement Coordinator<br />
+				Phone: <a href="tel:3605469659">360-546-9659</a><br />
+				Location: VUB 326<br />
+				Email: <a href="mailto:gernst@vancouver.wsu.edu">gernst@vancouver.wsu.edu</a></p>
+				
+				<p>Susan Finley Ph.D., Associate Professor and MIT Elementary Program Chair<br />
+				Phone: <a href="tel:3605469649">360-546-9649</a><br />
+				Location: VUB 328<br />
+				Email: <a href="mailto:finley@vancouver.wsu.edu">finley@vancouver.wsu.edu</a></p>
+				
+				<p>Dr. Susan Greenwood Ford, University Field Supervisor<br />
+				Phone: <a href="tel:3605740706">360-574-0706</a><br />
+				Location: VUB 320<br />
+				Email: <a href="mailto:sford1119@comcast.net">sford1119@comcast.net</a></p>
+				
+				<p>Kristin Shawn Huggins Ph.D., Assistant Professor of Educational Learning<br />
+				Phone: <a href="tel:3605469410">360-546-9410</a><br />
+				Location: VUB 353<br />
+				Email: <a href="mailto:k.huggins@vancouver.wsu.edu">k.huggins@vancouver.wsu.edu</a></p>
+				
+				<p>Elaine Jones, Instructor and Field Supervisor<br />
+				Phone: <a href="tel:3605469360">360-546-9360</a><br />
+				Location: VUB 317<br />
+				Email: <a href="mailto:eljones@vancouver.wsu.edu">eljones@vancouver.wsu.edu</a></p>
+				
+				<p>Anne Kennedy Ed.D., K-12 STEM Education Partnership Coordinator<br />
+				Phone: <a href="tel:3609071013">360-907-1013</a><br />
+				Location: VUB 349<br />
+				Email: <a href="mailto:anne.kennedy@esd112.org">anne.kennedy@esd112.org</a></p>
+				
+				<p>Stephen B. Kucer Ph.D., Associate Professor of Language and Literacy Education and Reading Endorsement Program Chair<br />
+				Phone: <a href="tel:3605469429">360-546-9429</a><br />
+				Location: VUB 334<br />
+				Email: <a href="mailto:skucer@vancouver.wsu.edu">skucer@vancouver.wsu.edu</a></p>
+				
+				<p>Kristin Lesseig Ph.D., Mathematics Education Assistant Professor<br />
+				Phone: <a href="tel:3605469466">360-546-9466</a><br />
+				Location: VUB 345<br />
+				Email: <a href="mailto:kristin.lesseig@vancouver.wsu.edu">kristin.lesseig@vancouver.wsu.edu</a></p>
+				
+				<p>Tonda Liggit Ph.D., English Language Learning Assistant Professor<br />
+				Phone: <a href="tel:3605469204">360-546-9204</a><br />
+				Location: VUB 341<br />
+				Email: <a href="mailto:tonda_liggett@vancouver.wsu.edu">tonda_liggett@vancouver.wsu.edu</a></p>
+				
+				<p>Christine Ludwig M.Ed., Clinical Faculty and Elementary Education Program Chair<br />
+				Phone: <a href="tel:3605469479">360-546-9479</a><br />
+				Location: VUB 343<br />
+				Email: <a href="mailto:cmludwig@vancouver.wsu.edu">cmludwig@vancouver.wsu.edu</a></p>
+				
+				<p>Linda Mabry Ph.D., Professor<br />
+				Phone: <a href="tel:3605469428">360-546-9428</a><br />
+				Location: VUB 352<br />
+				Email: <a href="mailto:mabryl@vancouver.wsu.edu">mabryl@vancouver.wsu.edu</a></p>
+				
+				<p>Nancy McKibbin M.A.T., Clinical Faculty and Field Supervisor<br />
+				Phone: <a href="tel:3605469432">360-546-9432</a><br />
+				Location: VUB 318<br />
+				Email: <a href="mailto:nancy_mckibbin@vancouver.wsu.edu">nancy_mckibbin@vancouver.wsu.edu</a></p>
+				
+				<p>Tamara Holmlund Nelson, Science Education Associate Professor<br />
+				Phone: <a href="tel:3605469663">360-546-9663</a><br />
+				Location: VUB 324<br />
+				Email: <a href="mailto:tnelson1@vancouver.wsu.edu">tnelson1@vancouver.wsu.edu</a></p>
+				
+				<p>Antoinette 'Tonci' Pavkovich, Field Experience Supervisor and Instructor<br />
+				Phone: <a href="tel:3605469433">360-546-9433</a><br />
+				Location: VUB 322<br />
+				Email: <a href="mailto:tonci@vancouver.wsu.edu">tonci@vancouver.wsu.edu</a></p>
+				
+				<p>Richard Sawyer Ed.D., Associate Professor and Program Chair<br />
+				Phone: <a href="tel:3605469658">360-546-9658</a><br />
+				Location: VUB 332<br />
+				Email: <a href="mailto:rsawyer@vancouver.wsu.edu">rsawyer@vancouver.wsu.edu</a></p>
+				
+				<p>Gay Selby Ed.D., Clinical Professor and Educational Leadership Program Chair<br />
+				Phone: <a href="tel:3605469668">360-546-9668</a><br />
+				Location: VUB 363<br />
+				Email: <a href="mailto:gselby@vancouver.wsu.edu">gselby@vancouver.wsu.edu</a></p>
+				
+				<p>Dr. David Slavit, Distinguished Mathematics Professor<br />
+				Phone: <a href="tel:3605469653">360-546-9653</a><br />
+				Location: VUB 350<br />
+				Email: <a href="mailto:dslavit@wsu.edu">dslavit@wsu.edu</a></p>
+				
+				<p>Suzanne Smith Ph.D., Director and Associate Professor<br />
+				Phone: <a href="tel:3605469714">360-546-9714</a><br />
+				Location: VMCB 201<br />
+				Email: <a href="mailto:smithsu@vancouver.wsu.edu">smithsu@vancouver.wsu.edu</a></p>
+				
+				<p>Dr. Angie Deuel Foster, Post Doc<br />
+				Phone: <a href="tel:3605469123">360-546-9123</a><br />
+				Location: VMMC 112<br />
+				Email: <a href="mailto:fostera@vancouver.wsu.edu">fostera@vancouver.wsu.edu</a></p>
+				
+				<p>Dr. Donna Telep-Manclark, University Field Supervisor and Instructor<br />
+				Phone: <a href="tel:3608966624">360-896-6624</a><br />
+				Location: VUB 232<br />
+				Email: <a href="mailto:dtelep-manclark@vancouver.wsu.edu">dtelep-manclark@vancouver.wsu.edu</a></p>
+				
+				<p>Shannon Van Horn Ed.D. NCSP, Adjunct Faculty<br />
+				Phone: <a href="tel:3609362182">360-936-2182</a><br />
+				Location: VUB 320<br />
+				Email: <a href="mailto:shannon@workshed.com">shannon@workshed.com</a></p>
+				
+				<p>Debra Barnett, Principal Assistant<br />
+				Phone: <a href="tel:3605469660">360-546-9660</a><br />
+				Location: VUB 300<br />
+				Email: <a href="mailto:debarnett@vancouver.wsu.edu">debarnett@vancouver.wsu.edu</a></p>
+				
+				<p>Elizabeth Benner MA, Academic Coordinator<br />
+				Phone: <a href="tel:3605469673">360-546-9673</a><br />
+				Location: VUB 307<br />
+				Email: <a href="mailto:elizabeth.benner@vancouver.wsu.edu">elizabeth.benner@vancouver.wsu.edu</a></p>
+				
+				<p>Shannon Cassidy, Clerical Assistant<br />
+				Phone: <a href="tel:3605469214">360-546-9214</a><br />
+				Location: VUB 300<br />
+				Email: <a href="mailto:s.ray-cassidy@vancouver.wsu.edu">s.ray-cassidy@vancouver.wsu.edu</a></p>
+				
+				<p>Jessica de Meurers, Clerical Assistant<br />
+				Phone: <a href="tel:3605469214">360-546-9214</a><br />
+				Location: VUB 300<br />
+				Email: <a href="mailto:jessica.wienert@email.wsu.edu">jessica.wienert@email.wsu.edu</a></p>
+				
+				<p>Roxanne Doenecke, Secretary<br />
+				Phone: <a href="tel:3605469652">360-546-9652</a><br />
+				Location: VUB 300<br />
+				Email: <a href="mailto:rdoenecke@vancouver.wsu.edu">rdoenecke@vancouver.wsu.edu</a></p>
+				
+				<p>Kathleen Galyan, Program Advising Assistant<br />
+				Phone: <a href="tel:3605469695">360-546-9695</a><br />
+				Location: VUB 300<br />
+				Email: <a href="mailto:kgalyan@vancouver.wsu.edu">kgalyan@vancouver.wsu.edu</a></p>
+				
+				<p>Marion Gust B.A., Clerical Assistant and Faculty Support<br />
+				Phone: <a href="tel:3605469100">360-546-9100</a><br />
+				Location: VUB 300<br />
+				Email: <a href="mailto:mgust@vancouver.wsu.edu">mgust@vancouver.wsu.edu</a></p>
+				
+				<p>Jillane M. Homme M.P.A., Academic Coordinator for Graduate Programs in Education<br />
+				Phone: <a href="tel:3605469075">360-546-9075</a><br />
+				Location: VUB 308<br />
+				Email: <a href="mailto:jhomme22@vancouver.wsu.edu">jhomme22@vancouver.wsu.edu</a></p>
+				
+				<p>Kristen L. Pratt, Instructor/Teaching Assistant<br />
+				Phone: <a href="tel:3605469654">360-546-9654</a><br />
+				Location: VUB 348<br />
+				Email: <a href="mailto:klpratt@wsu.edu">klpratt@wsu.edu</a></p>
+			</div>
+			
+			<div class="collapsibleDirectory" data-role="collapsible">
+				<H3>Electrical Engineering</H3>
+				<p>Tutku Karacolak Ph.D., Assistant Professor<br />
+				Phone: <a href="tel:3605469185">360-546-9185</a><br />
+				Location: VECS 201 N<br />
+				Email: <a href="mailto:tutku.karacolak@vancouver.wsu.edu">tutku.karacolak@vancouver.wsu.edu</a></p>
+				
+				<p>John Lynch Ph.D., Clinical Associate Professor<br />
+				Phone: <a href="tel:3605469252">360-546-9252</a><br />
+				Location: VECS 301 G<br />
+				Email: <a href="mailto:jdlunch@vancouver.wsu.edu">jdlunch@vancouver.wsu.edu</a></p>
+				
+				<p>Praveen Sekhar Ph.D., Assistant Professor<br />
+				Phone: <a href="tel:3605469186">360-546-9186</a><br />
+				Location: VECS 201 W<br />
+				Email: <a href="mailto:praveen.sekhar@vancouver.wsu.edu">praveen.sekhar@vancouver.wsu.edu</a></p>
+				
+				<p>Feng Zhao Ph.D., Assistant Professor<br />
+				Phone: <a href="tel:3605469187">360-546-9187</a><br />
+				Location: VECS 201 P<br />
+				Email: <a href="mailto:feng.zhao@vancouver.wsu.edu">feng.zhao@vancouver.wsu.edu</a></p>
+			</div>
+			
+			<div class="collapsibleDirectory" data-role="collapsible">
+				<H3>English</H3>
+				<p>Wendy Dasler Johnson, Professor and Coordinator<br />
+				Phone: <a href="tel:3605469648">360-546-9648</a><br />
+				Location: VMMC 102 R<br />
+				Email: <a href="mailto:wjohnson1@vancouver.wsu.edu">wjohnson1@vancouver.wsu.edu</a></p>
+				
+				<p>Dr. Desiree Hellegers, Associate Professor, Director, Acedemic Coordinator<br />
+				Phone: <a href="tel:3605469643">360-546-9643</a><br />
+				Location: VMMC 202 V<br />
+				Email: <a href="mailto:desiree.hellegers@vancouver.wsu.edu">desiree.hellegers@vancouver.wsu.edu</a></p>
+				
+				<p>Dr. Thabiti Lewis, Associate Professor<br />
+				Phone: <a href="tel:3605469256">360-546-9256</a><br />
+				Location: VMMC 102 M<br />
+				Email: <a href="mailto:thabiti@vancouver.wsu.edu">thabiti@vancouver.wsu.edu</a></p>
+				
+				<p>David Menchaca, Assistant Professor<br />
+				Phone: <a href="tel:3605469176">360-546-9176</a><br />
+				Location: VMMC 102 F<br />
+				Email: <a href="mailto:menchaca@wsu.edu">menchaca@wsu.edu</a></p>
+				
+				<p>Pavithra Narayanan, Associate Professor<br />
+				Phone: <a href="tel:3605469732">360-546-9732</a><br />
+				Location: VMMC 202 F<br />
+				Email: <a href="mailto:pavitraa@vancouver.wsu.edu">pavitraa@vancouver.wsu.edu</a></p>
+				
+				<p>Wendy Olson, Assistant English Professor and Director of Composition<br />
+				Phone: <a href="tel:3605469513">360-546-9513</a><br />
+				Location: VMMC 102 K<br />
+				Email: <a href="mailto:wmolson@vancouver.wsu.edu">wmolson@vancouver.wsu.edu</a></p>
+				
+				<p>Dr. Kandy S. Robertson, Clinical Assosciate Professor and Writing Center Coordinator<br />
+				Phone: <a href="tel:3605469651">360-546-9651</a><br />
+				Location: VLIB 203 B<br />
+				Email: <a href="mailto:kandy_robertson@vancouver.wsu.edu">kandy_robertson@vancouver.wsu.edu</a></p>
+				
+				<p>Carol Siegel, Professor<br />
+				Phone: <a href="tel:3605469641">360-546-9641</a><br />
+				Location: VMMC SS202<br />
+				Email: <a href="mailto:siegel@vancouver.wsu.edu">siegel@vancouver.wsu.edu</a></p>
+				
+				<p>Howard Aaron, Lecturer<br />
+				Phone: <a href="tel:5038162742">503-816-2742</a><br />
+				Location: VMMC 102<br />
+				Email: <a href="mailto:howard823@comcast.net">howard823@comcast.net</a></p>
+				
+				<p>Craig Buchner, Adjunct Faculty<br />
+				Phone: <a href="tel:3605469425">360-546-9425</a><br />
+				Location: VMMC 102 P<br />
+				Email: <a href="mailto:craig.buchner@vancouver.wsu.edu">craig.buchner@vancouver.wsu.edu</a></p>
+				
+				<p>Joe Czech, Instructer<br />
+				Phone: <a href="tel:3606043700">360-604-3700</a><br />
+				Location: VMMC 000<br />
+				Email: <a href="mailto:Joe.Czech@evergreenps.org">Joe.Czech@evergreenps.org</a></p>
+				
+				<p>Logan Forehand, Instructer<br />
+				Phone: <a href="tel:5033145683">503-314-5683</a><br />
+				Location: VMMC 102 P<br />
+				Email: <a href="mailto:logan.forehand@wsu.edu">logan.forehand@wsu.edu</a></p>
+				
+				<p>Ellen C. Franklin M.A., Adjunct Faculty<br />
+				Phone: <a href="tel:3605469441">360-546-9441</a><br />
+				Location: VMMC 102 P<br />
+				Email: <a href="mailto:efranklin@vancouver.wsu.edu">efranklin@vancouver.wsu.edu</a></p>
+				
+				<p>Andrew L. Giarelli Ph.D., Adjunct Instructer<br />
+				Phone: <a href="tel:3605469425">360-546-9425</a><br />
+				Location: VMMC 102 P<br />
+				Email: <a href="mailto:andrew_giarelli@vancouver.wsu.edu">andrew_giarelli@vancouver.wsu.edu</a></p>
+				
+				<p>Regina McMenomy Ph.D., Instructer<br />
+				Phone: <a href="tel:3605469425">360-546-9425</a><br />
+				Location: VMMC 102 P<br />
+				Email: <a href="mailto:emcmenomy@vancouver.wsu.edu">mailto:emcmenomy@vancouver.wsu.edu</a></p>
+				
+				<p>Katherine Olson, Adjunct<br />
+				Phone: <a href="tel:3605469260">360-546-9260</a><br />
+				Location: VMMC Reception<br />
+				Email: <a href="mailto:kjolson@vancouver.wsu.edu">kjolson@vancouver.wsu.edu</a></p>
+				
+				<p>Brain Schlosser M.A., Adjunct Faculty and Lead Consultant<br />
+				Phone: <a href="tel:3605469650">360-546-9650</a><br />
+				Location: VLIB 203<br />
+				Email: <a href="mailto:brianstribe@vancouver.wsu.edu">brianstribe@vancouver.wsu.edu</a></p>
+				
+				<p>Annette Bradstreet, Program Assistant<br />
+				Phone: <a href="tel:3605469640">360-546-9640</a><br />
+				Location: VMMC 102<br />
+				Email: <a href="mailto:annette.bradstreet@vancouver.wsu.edu">annette.bradstreet@vancouver.wsu.edu</a></p>
+				
+				<p>Shellynda Michalek, Acedemic Coordinator Support<br />
+				Phone: <a href="tel:3605469106">360-546-9106</a><br />
+				Location: VSCI 130<br />
+				Email: <a href="mailto:michaleksj@vancouver.wsu.edu">michaleksj@vancouver.wsu.edu</a></p>
+				
+				<p>Teresa Phimister, Acedemic Coordinator<br />
+				Phone: <a href="tel:3605469664">360-546-9664</a><br />
+				Location: VSCI 130<br />
+				Email: <a href="mailto:phimister@vancouver.wsu.edu">phimister@vancouver.wsu.edu</a></p>
+				
+				<p>Mary Jo Klinker, Graduate Student/Instructor<br />
+				Phone: <a href="tel:3605469425">360-546-9425</a><br />
+				Location: VMMC 207<br />
+				Email: <a href="mailto:mklinker@wsu.edu">mklinker@wsu.edu</a></p>
+				
+				<p>Justin Obara, Graduate Student/Instructor<br />
+				Phone: <a href="tel:5094329227">509-432-9227</a><br />
+				Location: VMMC 207<br />
+				Email: <a href="mailto:justin.obara@wsu.edu">justin.obara@wsu.edu</a></p>
+				
+				<p>Michael Sutcliffe, Graduate Student<br />
+				Phone: <a href="tel:3605469227">360-546-9227</a><br />
+				Location: VMMC 207<br />
+				Email: <a href="mailto:msut@wsu.edu">msut@wsu.edu</a></p>
+				
+				<p>Sky Wilson, Teaching Assistant<br />
+				Phone: <a href="tel:3602231397">360-223-1397</a><br />
+				Location: VMCB 220<br />
+				Email: <a href="mailto:sky.wilson519@gmail.com">sky.wilson519@gmail.com</a></p>
+			</div>
+			
+			<div class="collapsibleDirectory" data-role="collapsible">
+				<H3>Environment</H3>
+				<p>Dr. Maichael S. Berger, Biology Instructor<br />
+				Phone: <a href="tel:3605469347">360-546-9347</a><br />
+				Location: VSCI 130 L<br />
+				Email: <a href="mailto:msberger@vancouver.wsu.edu">msberger@vancouver.wsu.edu</a></p>
+				
+				<p>Dr. Steve Bollens, Director and Professor<br />
+				Phone: <a href="tel:3605469116">360-546-9116</a><br />
+				Location: VSCI 230 Q<br />
+				Email: <a href="mailto:sbollens@vancouver.wsu.edu">sbollens@vancouver.wsu.edu</a></p>
+				
+				<p>M. Jahi Chappell Ph.D., Assistant Professor<br />
+				Phone: <a href="tel:3605469413">360-546-9413</a><br />
+				Location: VSCI 230 P<br />
+				Email: <a href="mailto:m.jahi.chappell@vancouver.wsu.edu">m.jahi.chappell@vancouver.wsu.edu</a></p>
+				
+				<p>John Harrison Ph.D., Associate Professor<br />
+				Phone: <a href="tel:3605469210">360-546-9210</a><br />
+				Location: VSCI 230 B<br />
+				Email: <a href="mailto:john_harrison@vancouver.wsu.edu">john_harrison@vancouver.wsu.edu</a></p>
+				
+				<p>Stephen Harrison, Assistant Professor<br />
+				Phone: <a href="tel:3605469268">360-546-9268</a><br />
+				Location: VSCI 230 L<br />
+				Email: <a href="mailto:steve_henderson@vancouver.wsu.edu">steve_henderson@vancouver.wsu.edu</a></p>
+				
+				<p>Dr. Gretchen Rollwagon-Bollens, Clinical Associate Professor<br />
+				Phone: <a href="tel:3605469115">360-546-9115</a><br />
+				Location: VSCI 230 A<br />
+				Email: <a href="mailto:rollboll@vancouver.wsu.edu">rollboll@vancouver.wsu.edu</a></p>
+				
+				<p>Brian Tissot Ph.D., Associate Director and Professor<br />
+				Phone: <a href="tel:3605469611">360-546-9611</a><br />
+				Location: VSCI 230 M<br />
+				Email: <a href="mailto:tissot@vancouver.wsu.edu">tissot@vancouver.wsu.edu</a></p>
+			
+				<p>Susan Circone Ph.D., Adjunct Faculty<br />
+				Phone: <a href="tel:3605469630">360-546-9630</a><br />
+				Location: VLIB 210 L<br />
+				Email: <a href="mailto:scircone@vancouver.wsu.edu">scircone@vancouver.wsu.edu</a></p>
+				
+				<p>Dr. Jose Vazquez, Adjunct Faculty<br />
+				Phone: <a href="tel:3605469630">360-546-9630</a><br />
+				Location: VLIB 201 H<br />
+				Email: <a href="mailto:jose.vazquez-bello@vancouver.wsu.edu">jose.vazquez-bello@vancouver.wsu.edu</a></p>
+			
+				<p>Diane DiVittorio, Undergraduate Acedemic Advisor<br />
+				Phone: <a href="tel:3605469611">360-546-9624</a><br />
+				Location: VSCI 130 C<br />
+				Email: <a href="mailto:diane.divittorio@vancouver.wsu.edu">diane.divittorio@vancouver.wsu.edu</a></p>
+				
+				<p>Sherry Swayze, Secretary Senior<br />
+				Phone: <a href="tel:3605469611">360-546-9636</a><br />
+				Location: VSCI 230 C<br />
+				Email: <a href="mailto:sswayze@vancouver.wsu.edu">sswayze@vancouver.wsu.edu</a></p>
+			</div>
+			
+			<div class="collapsibleDirectory" data-role="collapsible">
+				<H3>Fine Arts</H3>
+				<p>Avantika Bawa, Assistant Professor<br />
+				Phone: <a href="tel:3605469415">360-546-9415</a><br />
+				Location: VMMC 102 G<br />
+				Email: <a href="mailto:a.bawa@vancouver.wsu.edu">a.bawa@vancouver.wsu.edu</a></p>
+				
+				<p>Harrison Higgs, Associate Professor<br />
+				Phone: <a href="tel:3605469457">360-546-9457</a><br />
+				Location: VMMC 102 N<br />
+				Email: <a href="mailto:hhiggs@wsu.edu">hhiggs@wsu.edu</a></p>
+			
+				<p>Linda Campbell, Secretary Senior<br />
+				Phone: <a href="tel:3605469441">360-546-9441</a><br />
+				Location: VMMC 102<br />
+				Email: <a href="mailto:lk_campbell@vancouver.wsu.edu">lk_campbell@vancouver.wsu.edu</a></p>
+				
+				<p>Shellynda Michalek, Acedemic Coordinator Support<br />
+				Phone: <a href="tel:3605469106">360-546-9106</a><br />
+				Location: VSCI 130<br />
+				Email: <a href="mailto:michaleksj@vancouver.wsu.edu">michaleksj@vancouver.wsu.edu</a></p>
+			
+				<p>Teresa Phimister, Acedemic Coordinator<br />
+				Phone: <a href="tel:3605469664">360-546-9664</a><br />
+				Location: VSCI 130<br />
+				Email: <a href="mailto:phimister@vancouver.wsu.edu">phimister@vancouver.wsu.edu</a></p>
+				
+				<p>Dale Strouse, Fine Arts Tech<br />
+				Phone: <a href="tel:3605469664">360-546-9491</a><br />
+				Location: VSCI 130<br />
+				Email: <a href="mailto:dstrouse@wsu.edu">dstrouse@wsu.edu</a></p>
+			</div>
+			
+			<div class="collapsibleDirectory" data-role="collapsible">
+				<H3>Foreign languages and Cultures</H3>
+				<p>Joan Grenier-Winther, French Professor and Associate Chair<br />
+				Phone: <a href="tel:3605469354">360-546-9354</a><br />
+				Location: VCLS 208 S<br />
+				Email: <a href="mailto:grenierj@vancouver.wsu.edu">grenierj@vancouver.wsu.edu</a></p>
+					
+				<p>Cassandra Gulam M.A., Spanish Language and Culture Professor<br />
+				Phone: <a href="tel:3605469488">360-546-9488</a><br />
+				Location: VMMC 202 P<br />
+				Email: <a href="mailto:casgulam@vancouver.wsu.edu">casgulam@vancouver.wsu.edu</a></p>
+				
+				<p>Mar&#237;a Lee-L&#243;pez M.A., Spanish Language and Culture Instructor<br />
+				Phone: <a href="tel:3605469488">360-546-9488</a><br />
+				Location: VMMC 202 P<br />
+				Email: <a href="mailto:lee-lopez@vancouver.wsu.edu">lee-lopez@vancouver.wsu.edu</a></p>
+				
+				<p>Jorge Guadalupe Liz&#225;rraga, Instructor<br />
+				Phone: <a href="tel:3605469284">360-546-9445</a><br />
+				Location: VMMC 102 P<br />
+				Email: <a href="mailto:jlizarraga@vancouver.wsu.edu">jlizarraga@vancouver.wsu.edu</a></p>
+			
+				<p>Jessica McKee, Spanish Class Coordinator and Instructor<br />
+				Phone: <a href="tel:3605469488">360-546-9488</a><br />
+				Location: VCLS 208 J<br />
+				Email: <a href="mailto:jessica_mckee@vancouver.wsu.edu">jessica_mckee@vancouver.wsu.edu</a></p>
+					
+				<p>Marie-Pierre Wolfe, Adjunct Faculty<br />
+				Phone: <a href="tel:5037258497">503-725-8497</a><br />
+				Location: VMMC 102 P<br />
+				Email: <a href="mailto:mariepwolfe@yahoo.fr">mariepwolfe@yahoo.fr</a></p>
+					
+				<p>Willow Zheng, Chinese language and Culture Adjunct Instructor<br />
+				Phone: <a href="tel:3605469445">360-546-9445</a><br />
+				Location: VMMC 102 P<br />
+				Email: <a href="mailto:willow.zheng@vancouver.wsu.edu">willow.zheng@vancouver.wsu.edu</a></p>
+				
+				<p>Shellynda Michalek, Acedemic Coordinator Support<br />
+				Phone: <a href="tel:3605469106">360-546-9106</a><br />
+				Location: VSCI 130<br />
+				Email: <a href="mailto:michaleksj@vancouver.wsu.edu">michaleksj@vancouver.wsu.edu</a></p>
+				
+				<p>Teresa Phimister, Acedemic Coordinator<br />
+				Phone: <a href="tel:3605469664">360-546-9664</a><br />
+				Location: VSCI 130<br />
+				Email: <a href="mailto:phimister@vancouver.wsu.edu">phimister@vancouver.wsu.edu</a></p>
+					
+				<p>Doug Winther, Director<br />
+				Phone: <a href="tel:3605469141">360-546-9141</a><br />
+				Location: VMMC 115 A<br />
+				Email: <a href="mailto:wintherd@wsu.edu">wintherd@wsu.edu</a></p>
+			</div>
+				
+			<div class="collapsibleDirectory" data-role="collapsible">
+				<H3>History</H3>
+				<p>Dr. Steven M. Fountain, Clinical Assistant Professor<br />
+				Phone: <a href="tel:3605469738">360-546-9738</a><br />
+				Location: VCLS 208 T<br />
+				Email: <a href="mailto:sfountain@vancouver.wsu.edu">sfountain@vancouver.wsu.edu</a></p>
+				
+				<p>Dr. Luz Mar&#237;a Gordillo<br />
+				Phone: <a href="tel:3605469099">360-546-9099</a><br />
+				Location: VMMC 202 U<br />
+				Email: <a href="mailto:gordillo@wsu.edu">gordillo@wsu.edu</a></p>
+				
+				<p>Dr. Candice Goucher, Professor<br />
+				Phone: <a href="tel:3605469469">360-546-9469</a><br />
+				Location: VMMC 202 K<br />
+				Email: <a href="mailto:cgoucher@vancouver.wsu.edu">cgoucher@vancouver.wsu.edu</a></p>
+				
+				<p>Jorge Guadalupe Liz&#225;rraga, Instructor<br />
+				Phone: <a href="tel:3605469284">360-546-9445</a><br />
+				Location: VMMC 102 P<br />
+				Email: <a href="mailto:jlizarraga@vancouver.wsu.edu">jlizarraga@vancouver.wsu.edu</a></p>
+				
+				<p>Dr. Laurie Mercier, Distinguished Professor<br />
+				Phone: <a href="tel:3605469646">360-546-9646</a><br />
+				Location: VMMC 102 V<br />
+				Email: <a href="mailto:lmercier@vancouver.wsu.edu:">lmercier@vancouver.wsu.edu</a></p>
+				
+				<p>Dr. Sue Peabody, Professor and Associate Chair<br />
+				Phone: <a href="tel:3605469647">360-546-9647</a><br />
+				Location: VMMC 202 D<br />
+				Email: <a href="mailto:speabody@vancouver.wsu.edu">speabody@vancouver.wsu.edu</a></p>
+				
+				<p>Dr. Jacqueline Peterson, Professor Emerita<br />
+				Phone: <a href="tel:3605469644">360-546-9644</a><br />
+				Location: VMMC 202 G<br />
+				Email: <a href="mailto:jpeterson1@vancouver.wsu.edu">jpeterson1@vancouver.wsu.edu</a></p>
+				
+				<p>Dr. Xiuyu Wang, Assistant Professor<br />
+				Phone: <a href="tel:3605469174">360-546-9174</a><br />
+				Location: VMMC 102 X<br />
+				Email: <a href="mailto:xiuyuwang@vancouver.wsu.edu">xiuyuwang@vancouver.wsu.edu</a></p>
+				
+				<p>Dr. NK Harrington, Professor<br />
+				Phone: <a href="tel:3605469640">360-546-9640</a><br />
+				Location: VMMC 102 P<br />
+				Email: <a href="mailto:nHarrington@wsu.edu">nHarrington@wsu.edu</a></p>
+				
+				<p>Donna L. Sinclair, Instructor<br />
+				Phone: <a href="tel:3607719310">360-771-9310</a><br />
+				Location: VMMC 102 P<br />
+				Email: <a href="mailto:donna.sinclair@vancouver.wsu.edu">donna.sinclair@vancouver.wsu.edu</a></p>
+				
+				<p>Dr. Aaron D. Whelchel, Instructor<br />
+				Phone: <a href="tel:3605469640">360-546-9640</a><br />
+				Location: VMMC 207<br />
+				Email: <a href="mailto:adwhelchel@gmail.com">adwhelchel@gmail.com</a></p>
+				
+				<p>Linda Campbell, Secretary Senior<br />
+				Phone: <a href="tel:360546-9640">360-546-9441</a><br />
+				Location: VMMC 102<br />
+				Email: <a href="mailto:lk_campbell@vancouver.wsu.edu">lk_campbell@vancouver.wsu.edu</a></p>
+				
+				<p>Shellynda Michalek, Acedemic Coordinator Support<br />
+				Phone: <a href="tel:3605469106">360-546-9106</a><br />
+				Location: VSCI 130<br />
+				Email: <a href="mailto:michaleksj@vancouver.wsu.edu">michaleksj@vancouver.wsu.edu</a></p>
+				
+				<p>Lindy Volk, Acedemic Coordinator<br />
+				Phone: <a href="tel:3605469475">360-546-9475</a><br />
+				Location: VSCI 130<br />
+				Email: <a href="mailto:lsakamoto@vancouver.wsu.edu">lsakamoto@vancouver.wsu.edu</a></p>
+			</div>
+			
+			<div class="collapsibleDirectory" data-role="collapsible">
+				<H3>Humanities</H3>
+				<p>Jorge Guadalupe Liz&#225;rraga, Instructor<br />
+				Phone: <a href="tel:3605469284">360-546-9445</a><br />
+				Location: VMMC 102 P<br />
+				Email: <a href="mailto:jlizarraga@vancouver.wsu.edu">jlizarraga@vancouver.wsu.edu</a></p>
+				
+				<p>Dr. Sue Peabody, Professor and Associate Chair of History<br />
+				Phone: <a href="tel:3605469647">360-546-9647</a><br />
+				Location: VMMC 202 D<br />
+				Email: <a href="mailto:speabody@vancouver.wsu.edu">speabody@vancouver.wsu.edu</a></p>
+				
+				<p>Shellynda Michalek, Acedemic Coordinator Support<br />
+				Phone: <a href="tel:3605469106">360-546-9106</a><br />
+				Location: VSCI 130<br />
+				Email: <a href="mailto:michaleksj@vancouver.wsu.edu">michaleksj@vancouver.wsu.edu</a></p>
+				
+				<p>Teresa Phimister, Acedemic Coordinator<br />
+				Phone: <a href="tel:3605469664">360-546-9664</a><br />
+				Location: VSCI 130<br />
+				Email: <a href="mailto:phimister@vancouver.wsu.edu">phimister@vancouver.wsu.edu</a></p>
+			</div>
+			
+			<div class="collapsibleDirectory" data-role="collapsible">
+				<h3>Library</h3>
+				<p>Circulation Desk<br />
+				Phone: <a href="tel:3605469680">360-546-9680</a><br />
+				Location: VLIB 100<br />
+				Email: <a href="mailto:library@vancouver.wsu.edu">library@vancouver.wsu.edu</a></p>
+				
+				<p>Reference Desk<br />
+				Phone: <a href="tel:3605469686">360-546-9686</a><br />
+				Location: VLIB 100<br />
+				Email: <a href="mailto:library@vancouver.wsu.edu">library@vancouver.wsu.edu</a></p>
+				
+				<p>Marianne Bash, Reference Librarian<br />
+				Phone: <a href="tel:3605469681">360-546-9681</a><br />
+				Location: VLIB 160<br />
+				Email: <a href="mailto:mbash@vancouver.wsu.edu">mbash@vancouver.wsu.edu</a></p>
+				
+				<p>Nicole Campbell, Interim Library Director<br />
+				Phone: <a href="tel:3605469687">360-546-9687</a><br />
+				Location: VLIB 160 E<br />
+				Email: <a href="mailto:nmcampbell@vancouver.wsu.edu">nmcampbell@vancouver.wsu.edu</a></p>
+				
+				<p>Karen R. Diller M.L.I.S., Associate Library Director<br />
+				Phone: <a href="tel:3605469179">360-546-9179</a><br />
+				Location: VLIB 160 D<br />
+				Email: <a href="mailto:diller@vancouver.wsu.edu">diller@vancouver.wsu.edu</a></p>
+				
+				<p>Kathleen Carlisle Fountain, Head of Collection Development<br />
+				Phone: <a href="tel:3605469694">360-546-9694</a><br />
+				Location: VLIB 160 F<br />
+				Email: <a href="mailto:kfountain@vancouver.wsu.edu">kfountain@vancouver.wsu.edu</a></p>
+				
+				<p>Linda Frederiksen, Head of Access Services<br />
+				Phone: <a href="tel:3605469683">360-546-9683</a><br />
+				Location: VLIB 160 H<br />
+				Email: <a href="mailto:lfrederiksen@vancouver.wsu.edu">lfrederiksen@vancouver.wsu.edu</a></p>
+				
+				<p>Kerry Hodge, Technical Services Supervisor<br />
+				Phone: <a href="tel:3605469684">360-546-9684</a><br />
+				Location: VLIB 160<br />
+				Email: <a href="mailto:hodge@vancouver.wsu.edu">hodge@vancouver.wsu.edu</a></p>
+				
+				<p>Dena Keller, Circulation and Reserves Supervisor and Summit Coordinator<br />
+				Phone: <a href="tel:3605469685">360-546-9685</a><br />
+				Location: VLIB 160 A<br />
+				Email: <a href="mailto:dkeller@vancouver.wsu.edu">dkeller@vancouver.wsu.edu</a></p>
+				
+				<p>Diane Manning, Interlibrary Loan Specialist<br />
+				Phone: <a href="tel:3605469154">360-546-9154</a><br />
+				Location: VLIB 160<br />
+				Email: <a href="mailto:dmanning@wsu.edu">dmanning@wsu.edu</a></p>
+				
+				<p>Sue Phelps, Reference Librarian<br />
+				Phone: <a href="tel:3605469178">360-546-9178</a><br />
+				Location: VLIB 160<br />
+				Email: <a href="mailto:asphelps@vancouver.wsu.edu">asphelps@vancouver.wsu.edu</a></p>
+				
+				<p>Maria Power, Reference Assistant<br />
+				Phone: <a href="tel:360-546-9681">360-546-9681</a><br />
+				Location: VLIB 160<br />
+				Email: <a href="mailto:maria.power@wsu.edu">maria.power@wsu.edu</a></p>
+				
+				<p>Nicholas Schiller MLS, Systems & Intruction Librarian<br />
+				Phone: <a href="tel:3605469171">360-546-9171</a><br />
+				Location: VLIB 160 J<br />
+				Email: <a href="mailto:schiller@vancouver.wsu.edu">schiller@vancouver.wsu.edu</a></p>
+				
+				<p>Robert Schimelpfenig, Archives Specialist<br />
+				Phone: <a href="tel:3605469249">360-546-9249</a><br />
+				Location: VLIB 160<br />
+				Email: <a href="mailto:schimo@vancouver.wsu.edu">schimo@vancouver.wsu.edu</a></p>
+				
+				<p>Patrick Wohlmut, Reference Librarian<br />
+				Phone: <a href="tel:3605469249">360-546-9681</a><br />
+				Location: VLIB 160<br />
+				Email: <a href="mailto:patrick.wohlmut@vancouver.wsu.edu">patrick.wohlmut@vancouver.wsu.edu</a></p>
+				
+				<p>Leslie Wykoff MLS, Librarian Emerita<br />
+				Phone: <a href="tel:3605469680">360-546-9680</a><br />
+				Location: VLIB 160<br />
+				Email: <a href="mailto:leslie.wykoff@vancouver.wsu.edu">leslie.wykoff@vancouver.wsu.edu</a></p>
+				
+				<p>Molly Zalman Winters, Administrative Assistant<br />
+				Phone: <a href="tel:3605469689">360-546-9689</a><br />
+				Location: VLIB 160<br />
+				Email: <a href="mailto:molly.zalmanwinters@vancouver.wsu.edu">molly.zalmanwinters@vancouver.wsu.edu</a></p>
+			</div>
+			
+			<div class="collapsibleDirectory" data-role="collapsible">
+				<H3>Management and Operations</H3>
+				<p>Jerry Goodstein, Professor<br />
+				Phone: <a href="tel:3605469755">360-546-9755</a><br />
+				Location: VCLS 308 J<br />
+				Email: <a href="mailto:jgoodstein@vancouver.wsu.edu">jgoodstein@vancouver.wsu.edu</a></p>
+				
+				<p>Rebecca Portnoy, Assistant Professor<br />
+				Phone: <a href="tel:3605469258">360-546-9258</a><br />
+				Location: VCLS 308 P<br />
+				Email: <a href="mailto:portnoy@vancouver.wsu.edu">portnoy@vancouver.wsu.edu</a></p>
+				
+				<p>Steve Krause, Visiting Associate Professor<br />
+				Phone: <a href="tel:3605469258">360-546-9258</a><br />
+				Location: VCLS 308 P<br />
+				Email: <a href="mailto:steven.krause@vancouver.wsu.edu">steven.krause@vancouver.wsu.edu</a></p>
+				
+				<p>Thomas M. Tripp, Professor of Management<br />
+				Phone: <a href="tel:3605469754">360-546-9754</a><br />
+				Location: VCLS 308 E<br />
+				Email: <a href="mailto:ttripp@vancouver.wsu.edu">ttripp@vancouver.wsu.edu</a></p>
+				
+				
+			</div>
+			
+			<div class="collapsibleDirectory" data-role="collapsible">
+				<H3>Management Information Systems</H3>
+				<p>Greg Rose, Associate Professor of MIS<br />
+				Phone: <a href="tel:3605469766">360-546-9766</a><br />
+				Location: VCLS 308 V<br />
+				Email: <a href="mailto:grose@vancouver.wsu.edu">grose@vancouver.wsu.edu</a></p>
+				
+				<p>Wilfred W. Wu, Assistant Professor of MIS<br />
+				Phone: <a href="tel:3605469765">360-546-9765</a><br />
+				Location: VCLS 308 K<br />
+				Email: <a href="mailto:wwu1@vancouver.wsu.edu">wwu1@vancouver.wsu.edu</a></p>
+				
+				<p>Proscila Darakjian, Adjunct MIS<br />
+				Phone: <a href="tel:3605469750">360-546-9750</a><br />
+				Location: VCLS 308<br />
+				Email: <a href="mailto:pdarakjian@vancouver.wsu.edu:">pdarakjian@vancouver.wsu.edu</a></p>
+				
+				<p>Darrell Quick, Adjunct Professor MIS<br />
+				Phone: <a href="tel:3605469750">360-546-9750</a><br />
+				Location: VCLS 308<br />
+				Email: <a href="mailto:darrell.quick@vancouver.wsu.edu">darrell.quick@vancouver.wsu.edu</a></p>
+				
+				<p>Danette Knowlton, Administrative Manager<br />
+				Phone: <a href="tel:3605469749">360-546-9749</a><br />
+				Location: VCLS 308<br />
+				Email: <a href="mailto:knowlton@vancouver.wsu.edu">knowlton@vancouver.wsu.edu</a></p>
+			</div>
+			
+			<div class="collapsibleDirectory" data-role="collapsible">
+				<H3>Marketing</H3>
+				<p>Joeseph A. Cote, Professor<br />
+				Phone: <a href="tel:3605469753">360-546-9753</a><br />
+				Location: VCLS 308 G<br />
+				Email: <a href="mailto:cote@vancouver.wsu.edu">cote@vancouver.wsu.edu</a></p>
+				
+				<p>Ron Pimentel, Clinical Assistant Professor, Associate Director of Professional Sales<br />
+				Phone: <a href="tel:3605469339">360-546-9339</a><br />
+				Location: VCLS 308 L<br />
+				Email: <a href="mailto:ron.pimentel@vancouver.wsu.edu">ron.pimentel@vancouver.wsu.edu</a></p>
+				
+				<p>Alberto Sa Vinhas, Assistant Professor<br />
+				Phone: <a href="tel:3605469146">360-546-9146</a><br />
+				Location: VCLS 308 N<br />
+				Email: <a href="mailto:asavinhas@vancouver.wsu.edu">asavinhas@vancouver.wsu.edu</a></p>
+				
+				<p>U.N. Umesh, Professor<br />
+				Phone: <a href="tel:3605469760">360-546-9760</a><br />
+				Location: VCLS 308 S<br />
+				Email: <a href="mailto:umesh@vancouver.wsu.edu">umesh@vancouver.wsu.edu</a></p>
+				
+				<p>Danette Knowlton, Administrative Manager<br />
+				Phone: <a href="tel:3605469749">360-546-9749</a><br />
+				Location: VCLS 308<br />
+				Email: <a href="mailto:knowlton@vancouver.wsu.edu">knowlton@vancouver.wsu.edu</a></p>
+			</div>
+			
+			<div class="collapsibleDirectory" data-role="collapsible">
+				<H3>Mathematics</H3>
+				<p>Alexander Dimitrov, Ph.D., Assistant Professor<br />
+				Phone: <a href="tel:3605469385">360-546-9385</a><br />
+				Location: VUB 102 C<br />
+				Email: <a href="mailto:alex.dimitrov@vancouver.wsu.edu">alex.dimitrov@vancouver.wsu.edu</a></p>
+				
+				<p>Paul Krouss Ph.D., Instructor<br />
+				Phone: <a href="tel:3605469384">360-546-9384</a><br />
+				Location:VUB 102 E<br />
+				Email: <a href="mailto:pkrouss@vancouver.wsu.edu">pkrouss (at) vancouver (dot) wsu (dot) edu</a></p>
+				
+				<p>Dr. Eric Mapes, Instructor<br />
+				Phone: <a href="tel:3605469261">360-546-9261</a><br />
+				Location: VUB 102 D<br />
+				Email: <a href="mailto:eric_mapes@vancouver.wsu.edu">eric_mapes@vancouver.wsu.edu</a></p>
+				
+				<p>Joe Randall, Instructor<br />
+				Phone: <a href="tel:3605469344">360-546-9344</a><br />
+				Location: VUB 102 B<br />
+				Email: <a href="mailto:joseph_randall@vancouver.wsu.edu">joseph_randall@vancouver.wsu.edu</a></p>
+				
+				<p>Dr. David Slavit<br />
+				Phone: <a href="tel:3605469653">360-546-9653</a><br />
+				Location: VUB 350<br />
+				Email: <a href="mailto:dslavit@wsu.edu">dslavit@wsu.edu</a></p>
+				
+				<p>Cindy Jager, Adjunct Faculty<br />
+				Phone: <a href="tel:3605469386">360-546-9386</a><br />
+				Location: VLIB 210 H<br />
+				Email: <a href="mailto:cjager@vancouver.wsu.edu">cjager@vancouver.wsu.edu</a></p>
+				
+				<p>Bill Kring, Adjunct Faculty<br />
+				Phone: <a href="tel:3605469386">360-546-9386</a><br />
+				Location: VLIB 210 H<br />
+				Email: <a href="mailto:billkring@vancouver.wsu.edu">billkring@vancouver.wsu.edu</a></p>
+				
+				<p>Brain Manning, Adjunct Faculty<br />
+				Phone: <a href="tel:3605469386">360-546-9386</a><br />
+				Location: VLIB 210 H<br />
+				Email: <a href="mailto:brianmanning@vancouver.wsu.edu">brianmanning@vancouver.wsu.edu</a></p>
+				
+				<p>Arthur Placek, Adjunct Instructor<br />
+				Phone: <a href="tel:7087383307">708-738-3307</a><br />
+				Location: VUB 102<br />
+				Email: <a href="mailto:aplacek.wsu.edu">aplacek.wsu.edu</a></p>
+				
+				<p>Dr. Rick Simmons, Instructor<br />
+				Phone: <a href="tel:3605469386">360-546-9386</a><br />
+				Location: VLIB 210 H<br />
+				Email: <a href="mailto:rick.simmons@vancouver.wsu.edu">rick.simmons@vancouver.wsu.edu</a></p>
+				
+				<p>Diane DiVittorio, Undergraduate Acedemic Advisor<br />
+				Phone: <a href="tel:3605469478">360-546-9478</a><br />
+				Location: VSCI 230 J<br />
+				Email: <a href="mailto:diane.divittorio@vancouver.wsu.edu">diane.divittorio@vancouver.wsu.edu</a></p>
+			</div>
+			
+			<div class="collapsibleDirectory" data-role="collapsible">
+				<H3>Mechanical Engineering</H3>
+				<p>Linda (Xiaolin) Chen Ph.D., Associate Professor<br />
+				Phone: <a href="tel:3605469117">360-546-9117</a><br />
+				Location: VECS 301 U<br />
+				Email: <a href="mailto:chenx@vancouver.wsu.edu">chenx@vancouver.wsu.edu</a></p>
+				
+				<p>Hakan Gurocak, Director<br />
+				Phone: <a href="tel:3605469637">360-546-9637</a><br />
+				Location: VWCS 301 V<br />
+				Email: <a href="mailto:hgurocak@vancouver.wsu.edu">hgurocak@vancouver.wsu.edu</a></p>
+				
+				<p>Dave (Dae-Wook) Kim Ph.D., Associate Professor<br />
+				Phone: <a href="tel:3605469081">360-546-9081</a><br />
+				Location: VSCI 130 J<br />
+				Email: <a href="mailto:kimd@wsu.edu">kimd@wsu.edu</a></p>
+				
+				<p>Yoon Jo Kim Ph.D., Assistant Professor<br />
+				Phone: <a href="tel:3605469184">360-546-9184</a><br />
+				Location: VECS 301 Q<br />
+				Email: <a href="mailto:yoonjo.kim@wsu.edu">yoonjo.kim@wsu.edu</a></p>
+				
+				<p>Hamid Rad Ph.D., Instructor<br />
+				Phone: <a href="tel:3605469208">360-546-9208</a><br />
+				Location: VECS 301 L<br />
+				Email: <a href="mailto:hamidrad@vancouver.wsu.edu">hamidrad@vancouver.wsu.edu</a></p>
+				
+				<p>Stephen A. Solovitz Ph.D., Assistant Professor<br />
+				Phone: <a href="tel:3605469253">360-546-9253</a><br />
+				Location: VECS 301 P<br />
+				Email: <a href="mailto:stevesol@vancouver.wsu.edu">stevesol@vancouver.wsu.edu</a></p>
+				
+				<p>Jie Xu Ph.D., Assistant Professor<br />
+				Phone: <a href="tel:3605469144">360-546-9144</a><br />
+				Location: VECS 301 K<br />
+				Email: <a href="mailto:jie.xu@wsu.edu">jie.xu@wsu.edu</a></p>
+				
+				<p>Wei Xue Ph.D., Assistant Professor<br />
+				Phone: <a href="tel:3605469250">360-546-9250</a><br />
+				Location: VECS 301 W<br />
+				Email: <a href="mailto:wxue@wsu.edu">wxue@wsu.edu</a></p>
+				
+				<p>Troy Dunmire, Engineering Tech<br />
+				Phone: <a href="tel:3605469287">360-546-9287</a><br />
+				Location: VSCI 157<br />
+				Email: <a href="mailto:tdunmire@vancouver.wsu.edu">tdunmire@vancouver.wsu.edu</a></p>
+				
+				<p>Kristine M. Olsen, Administrative Manager<br />
+				Phone: <a href="tel:3605469092">360-546-9092</a><br />
+				Location: VECS 201 E<br />
+				Email: <a href="mailto:kristine.olsen@wsu.edu">kristine.olsen@wsu.edu</a></p>
+				
+				<p>Chad Swanson, Engineering Tech<br />
+				Phone: <a href="tel:3605469481">360-546-9481</a><br />
+				Location: VSCI 157<br />
+				Email: <a href="mailto:chad_swanson@vancouver.wsu.edu">chad_swanson@vancouver.wsu.edu</a></p>
+			</div>
+			
+			<div class="collapsibleDirectory" data-role="collapsible">
+				<H3>Molecular Biosciences</H3>
+				<p>Cynthia Cooper Ph.D., Assistant Professor<br />
+				Phone: <a href="tel:3605469342">360-546-9342</a><br />
+				Location: VSCI 230 F<br />
+				Email: <a href="mailto:cdcooper@vancouver.wsu.edu">cdcooper@vancouver.wsu.edu</a></p>
+				
+				<p>Steve Sylvester, Associate Professor<br />
+				Phone: <a href="tel:3605469724">360-546-9724</a><br />
+				Location: VSCI 230 D<br />
+				Email: <a href="mailto:ssylvester@vancouver.wsu.edu">ssylvester@vancouver.wsu.edu</a></p>
+				
+				<p>Dr. Patricia Sayer, Adjunct Faculty<br />
+				Phone: <a href="tel:3605469387">360-546-9387</a><br />
+				Location: VLIB 210 L<br />
+				Email: <a href="mailto:psayer@vancouver.wsu.edu">psayer@vancouver.wsu.edu</a></p>
+			</div>
+			
+			<div class="collapsibleDirectory" data-role="collapsible">
+				<H3>Music</H3>
+				<p>Rob Melton M.A., Adjunct Faculty<br />
+				Phone: <a href="tel:3605211579">360-521-1579</a><br />
+				Location: VMMC 201 P<br />
+				Email: <a href="mailto:rob@opusschoolofmusic.com">rob@opusschoolofmusic.com</a></p>
+				
+				<p>Kimberly Adams, Office Assistant<br />
+				Phone: <a href="tel:3605469425">360-546-9425</a><br />
+				Location: VCLS 208<br />
+				Email: <a href="mailto:kimberly.adams@vancouver.wsu.edu">kimberly.adams@vancouver.wsu.edu</a></p>
+			</div>
+			
+			<div class="collapsibleDirectory" data-role="collapsible">
+				<H3>Neuroscience</H3>
+				<p>Dr. Allison Coffin, Assistant Professor<br />
+				Phone: <a href="tel:3605469748">360-546-9748</a><br />
+				Location: VCLS 208 U<br />
+				Email: <a href="mailto:allison.coffin@wsu.edu">allison.coffin@wsu.edu</a></p>
+				
+				<p>Alexander Dimitrov Ph.D., Assistant Professor<br />
+				Phone: <a href="tel:3605469385">360-546-9385</a><br />
+				Location: VUB 102 C<br />
+				Email: <a href="mailto:alex.dimitrov@vancouver.wsu.edu">alex.dimitrov@vancouver.wsu.edu</a></p>
+				
+				<p>Dr. Michael Morgan, Psycology Professor<br />
+				Phone: <a href="tel:3605469726">360-546-9726</a><br />
+				Location: VCLS 208 G<br />
+				Email: <a href="mailto:mmmorgan@vancouver.wsu.edu">mmmorgan@vancouver.wsu.edu</a></p>
+				
+				<p>Dr. Christine Portfors, Associate Professor<br />
+				Phone: <a href="tel:3605469434">360-546-9434</a><br />
+				Location: VCLS 208 M<br />
+				Email: <a href="mailto:portfors@vancouver.wsu.edu">portfors@vancouver.wsu.edu</a></p>
+				
+				<p>Bill Griesar Ph.D., Adjunct Faculty<br />
+				Phone: <a href="tel:3605469720">360-546-9720</a><br />
+				Location: VCLS 160 G<br />
+				Email: <a href="mailto:bgriesar@pacifier.com">bgriesar@pacifier.com</a></p>
+				
+				<p>Janet DeWitt, Senior Secretary<br />
+				Phone: <a href="tel:3605469720">360-546-9720</a><br />
+				Location: VCLS 208<br />
+				Email: <a href="mailto:jldewitt@vancouver.wsu.edu">jldewitt@vancouver.wsu.edu</a></p>
+				
+				<p>Diane DiVittorio, Undergraduate Acedemic Advisor<br />
+				Phone: <a href="tel:3605469478">360-546-9478</a><br />
+				Location: VSCI 230 J<br />
+				Email: <a href="mailto:diane.divittorio@vancouver.wsu.edu">diane.divittorio@vancouver.wsu.edu</a></p>
+				
+				<p>Ellecia A. Williams MBA, Acedemic Coordinator<br />
+				Phone: <a href="tel:3605469459">360-546-9459</a><br />
+				Location: VSCI 230 C<br />
+				Email: <a href="mailto:ellecia.williams@vancouver.wsu.edu">ellecia.williams@vancouver.wsu.edu</a></p>
+			</div>
+			
+			<div class="collapsibleDirectory" data-role="collapsible">
+				<h3>Nursing</h3>
+				<p>Linda Dekker MN RN CNM APRN-BC, RN to BSN Program Intructor, advisor and Coordinator for N465 courses<br />
+				Phone: <a href="tel:3605469269">360-546-9269</a><br />
+				Location: VLIB 210 P<br />
+				Email: <a href="mailto:ldekker@vancouver.wsu.edu">ldekker@vancouver.wsu.edu</a></p>
+				
+				<p>Julie DeWitt-Kamada, Clinical Assistant Professor<br />
+				Phone: <a href="tel:3605469349"></a><br />
+				Location: 360-564-9349<br />
+				Email: <a href="mailto:jdewitt@vancouver.wsu.edu">jdewitt@vancouver.wsu.edu</a></p>
+				
+				<p>Dawn Doutrich Ph.D. CNS RN, Associate Professor<br />
+				Phone: <a href="tel:3605469464">360-546-9646</a><br />
+				Location: VLIB 210 W<br />
+				Email: <a href="mailto:doutrich@vancouver.wsu.edu">doutrich@vancouver.wsu.edu</a></p>
+				
+				<p>Linda Eddy Ph.D. RN CPNP, Associate Professor<br />
+				Phone: <a href="tel:3605469625">360-546-9625</a><br />
+				Location: VLIB 210 J<br />
+				Email: <a href="mailto:leddy@vancouver.wsu.edu">leddy@vancouver.wsu.edu</a></p>
+				
+				<p>Dr. Ginny W. Guido, Nursing Regional Director and Assistant Dean<br />
+				Phone: <a href="tel:3605469244">360-546-9244</a><br />
+				Location: VLIB 210 N<br />
+				Email: <a href="mailto:ginny_guido@vancouver.wsu.edu">ginny_guido@vancouver.wsu.edu</a></p>
+				
+				<p>Renee Hoeksel Ph.D. RN, RN-BSN Program Assistant Dean<br />
+				Phone: <a href="tel:3605469621">360-546-9621</a><br />
+				Location: VLIB 210 V<br />
+				Email: <a href="mailto:rhoeksel@vancouver.wsu.edu">rhoeksel@vancouver.wsu.edu</a></p>
+				
+				<p>Sarah Kooienga Ph.D. FNP, Assistant Professor<br />
+				Phone: <a href="tel:3605469278">360-546-9278</a><br />
+				Location: VLIB 210 X<br />
+				Email: <a href="mailto:skooienga@vancouver.wsu.edu">skooienga@vancouver.wsu.edu</a></p>
+				
+				<p>Christine Ludwig M.Ed., Clinical Faculty and Elementary Education Program Chair<br />
+				Phone: <a href="tel:3605469479">360-546-9479</a><br />
+				Location: VUB 343<br />
+				Email: <a href="mailto:cmludwig@vancouver.wsu.edu">cmludwig@vancouver.wsu.edu</a></p>
+				
+				<p>Melody Rasmor RN MSN FNP COHN-S, Clinical Assistant Professor<br />
+				Phone: <a href="tel:3605469619">360-546-9619</a><br />
+				Location: VLIB Office 'K'<br />
+				Email: <a href="mailto:rasmor@vancouver.wsu.edu">rasmor@vancouver.wsu.edu</a></p>
+				
+				<p>Dawn Rondeau, Assistant Professor<br />
+				Phone: <a href="tel:3605469395">360-546-9395</a><br />
+				Location: VLIB 210 Q<br />
+				Email: <a href="mailto:drondeau@vancouver.wsu.edu">drondeau@vancouver.wsu.edu</a></p>
+				
+				<p>Janet Spuck, Senior Instructor<br />
+				Phone: <a href="tel:3605469623">360-546-9623</a><br />
+				Location: VLIB 210 E<br />
+				Email: <a href="mailto:jspuck@vancouver.wsu.edu">jspuck@vancouver.wsu.edu</a></p>
+				
+				<p>Kathleen Johns, Office Assistant<br />
+				Phone: <a href="tel:3605469752">360-546-9752</a><br />
+				Location: VLIB 210<br />
+				Email: <a href="mailto:kathleen.johns@vancouver.wsu.edu">kathleen.johns@vancouver.wsu.edu</a></p>
+				
+				<p>Barbara M. Maddox, Clinical Coordinator<br />
+				Phone: <a href="tel:3605469164">360-546-9164</a><br />
+				Location: VLIB 210 Y<br />
+				Email: <a href="mailto:barbara.maddox@vancouver.wsu.edu">barbara.maddox@vancouver.wsu.edu</a></p>
+				
+				<p>Jenny Schrock, Academic Coordinator<br />
+				Phone: <a href="tel:3605469618">360-546-9618</a><br />
+				Location: VLIB 210 C<br />
+				Email: <a href="mailto:schrock@vancouver.wsu.edu">schrock@vancouver.wsu.edu</a></p>
+				
+				<p>Susan Shaw, Office Supposrt Supervisor<br />
+				Phone: <a href="tel:3605469473">360-546-9473</a><br />
+				Location: VLIB 210<br />
+				Email: <a href="mailto:susan.shaw@vancouver.wsu.edu">susan.shaw@vancouver.wsu.edu</a></p>
+			</div>
+			
+			<div class="collapsibleDirectory" data-role="collapsible">
+				<H3>Philosophy</H3>
+				<p>John Holmes Ph.D., Adjunct Professor<br />
+				Phone: <a href="tel:5418522898">541-852-2898</a><br />
+				Location: VFSC 100<br />
+				Email: <a href="mailto:jholmes23@vancouver.wsu.edu">jholmes23@vancouver.wsu.edu</a></p>
+				
+				<p>Kimberly Adams, Office Assistant<br />
+				Phone: <a href="tel:3605469425">360-546-9425</a><br />
+				Location: VCLS 208<br />
+				Email: <a href="mailto:kimberly.adams@vancouver.wsu.edu">kimberly.adams@vancouver.wsu.edu</a></p>
+			</div>
+			
+			<div class="collapsibleDirectory" data-role="collapsible">
+				<H3>Political Science</H3>
+				<p>Dana Lee Baker Ph.D., Associate Professor and Director of Program of Public Affairs<br />
+				Phone: <a href="tel:3605469125">360-546-9125</a><br />
+				Location: VMMC 202 N<br />
+				Email: <a href="mailto:bakerdl@vancouver.wsu.edu">bakerdl@vancouver.wsu.edu</a></p>
+				
+				<p>Carolyn Long Ph.D., Associate Professor of Political Science and Associate Director of Liberal Arts<br />
+				Phone: <a href="tel:3605469737">360-546-9737</a><br />
+				Location: VMMC 102 A<br />
+				Email: <a href="mailto:coelong@vancouver.wsu.edu">coelong@vancouver.wsu.edu</a></p>
+				
+				<p>Mark Stephen Ph.D., Associate Professor<br />
+				Phone: <a href="tel:3605469467">360-546-9467</a><br />
+				Location: VCLS 208 Q<br />
+				Email: <a href="mailto:stephanm@vancouver.wsu.edu">stephanm@vancouver.wsu.edu</a></p>
+				
+				<p>Paul Thiers Ph.D., Associate Professor<br />
+				Phone: <a href="tel:3605469466">360-546-9466</a><br />
+				Location: VMMC 102 S<br />
+				Email: <a href="mailto:pthiers@vancouver.wsu.edu">pthiers@vancouver.wsu.edu</a></p>
+				
+				<p>James C. Foster, Adjunct Professor<br />
+				Phone: <a href="tel:3605469097">360-546-9097</a><br />
+				Location: VMMC 210<br />
+				Email: <a href="mailto:james.foster@osucascades.edu">james.foster@osucascades.edu</a></p>
+				
+				<p>Travis Miller, Adjunct Professor<br />
+				Phone: <a href="tel:3605469445">360-546-9445</a><br />
+				Location: VMMC 102 P<br />
+				Email: <a href="mailto:travis.l.miller@vancouver.wsu.edu">travis.l.miller@vancouver.wsu.edu</a></p>
+				
+				<p>Annette Bradstreet, Program Assistant<br />
+				Phone: <a href="tel:3605469640">360-546-9640</a><br />
+				Location: VMMC 102 P<br />
+				Email: <a href="mailto:annette.bradstreet@vancouver.wsu.edu">annette.bradstreet@vancouver.wsu.edu</a></p>
+				
+				<p>Shellynda Michalek, Acedemic Coordinator Support<br />
+				Phone: <a href="tel:3605469106">360-546-9106</a><br />
+				Location: VSCI 130<br />
+				Email: <a href="mailto:michaleksj@vancouver.wsu.edu">michaleksj@vancouver.wsu.edu</a></p>
+				
+				<p>Lindy Volk, Acedemic Coordinator<br />
+				Phone: <a href="tel:3605469475">360-546-9745</a><br />
+				Location: VSCI 130<br />
+				Email: <a href="mailto:isakamoto@vancouver.wsu.edu">isakamoto@vancouver.wsu.edu</a></p>
+				
+				<p>Ellen Rogers MBA MPA, Graduate Student Instructor<br />
+				Phone: <a href="tel:3609214235">360-921-4235</a><br />
+				Location: VMMC 207<br />
+				Email: <a href="mailto:ellen.rogers@email.wsu.edu">ellen.rogers@email.wsu.edu</a></p>
+			</div>
+			
+			<div class="collapsibleDirectory" data-role="collapsible">
+				<H3>Professional Writing</H3>
+				<p>David Menchaca, Assistant Professor<br />
+				Phone: <a href="tel:3605469176">360-546-9176</a><br />
+				Location: VMMC 102 F<br />
+				Email: <a href="mailto:menchaca@wsu.edu">menchaca@wsu.edu</a></p>
+				
+				<p>Wendy Olson, Assistant Professor of English and Director of Composition<br />
+				Phone: <a href="tel:3605469513">360-546-9513</a><br />
+				Location: VMMC 102 K<br />
+				Email: <a href="mailto:wmolson@vancouver.wsu.edu">wmolson@vancouver.wsu.edu</a></p>
+				
+				<p>Logan Forehand, Instructor<br />
+				Phone: <a href="tel:5033145683">503-314-5683</a><br />
+				Location: VMMC 102 P<br />
+				Email: <a href="mailto:logan.forehand@wsu.edu">logan.forehand@wsu.edu</a></p>
+				
+				<p>Ellen C. Franklin M.A. M.A., Adjunct Faculty<br />
+				Phone: <a href="tel:3605469441">360-564-9441</a><br />
+				Location: VMMC 102 P<br />
+				Email: <a href="mailto:efranklin@vancouver.wsu.edu">efranklin@vancouver.wsu.edu</a></p>
+				
+				<p>Marie Naughton, Adjunct Faculty<br />
+				Phone: <a href="tel:5033516122">503-351-6122</a><br />
+				Location: VMMC 102 P<br />
+				Email: <a href="mailto:mnaughton@vancouver.wsu.edu">mnaughton@vancouver.wsu.edu</a></p>
+				
+				<p>Teresa Phimister, Acedemic Coordinator<br />
+				Phone: <a href="tel:3605469664">360-546-9664</a><br />
+				Location: VSCI 130<br />
+				Email: <a href="mailto:phimister@vancouver.wsu.edu">phimister@vancouver.wsu.edu</a></p>
+				
+				<p>Michael Sutcliffe, Graduate Student<br />
+				Phone: <a href="tel:3605469227">360-546-9227</a><br />
+				Location: VMMC 207<br />
+				Email: <a href="mailto:msut@wsu.edu">msut@wsu.edu</a></p>
+			</div>
+			
+			<div class="collapsibleDirectory" data-role="collapsible">
+				<H3>Psychology</H3>
+				<p>Dr. Art Blume, Professor<br />
+				Phone: <a href="tel:3605469414">360-546-9414</a><br />
+				Location: VCLS 208 L<br />
+				Email: <a href="mailto:art.blume@vancouver.wsu.edu">art.blume@vancouver.wsu.edu</a></p>
+				
+				<p>Dr. Allison Coffin, Assistant Professor<br />
+				Phone: <a href="tel:3605469748">360-546-9748</a><br />
+				Location: VCLS 208 U<br />
+				Email: <a href="mailto:allison.coffin@wsu.edu">allison.coffin@wsu.edu</a></p>
+				
+				<p>Dr. Armando X. Estrada, Assistant Professor<br />
+				Phone: <a href="tel:3605469716">360-546-9716</a><br />
+				Location: VCLS 280 C<br />
+				Email: <a href="mailto:aestrada1@vancouver.wsu.edu">aestrada1@vancouver.wsu.edu</a></p>
+				
+				<p>Dr. J.P. Garofalo, Associate Proffesor and Associate Chair<br />
+				Phone: <a href="tel:3605469717">360-546-9717</a><br />
+				Location: VCLS 208 E<br />
+				Email: <a href="mailto:jgarofalo@vancouver.wsu.edu">jgarofalo@vancouver.wsu.edu</a></p>
+				
+				<p>Dr. Randall Kleinhesselink, Associate Professor<br />
+				Phone: <a href="tel:3605469723">360-546-9723</a><br />
+				Location: VCLS 208 U<br />
+				Email: <a href="mailto:rkleinhesselink@vancouver.wsu.edu">rkleinhesselink@vancouver.wsu.edu</a></p>
+				
+				<p>Stephen Lakatos Ph.D., Associate Professor<br />
+				Phone: <a href="tel:3605469743">360-546-9743</a><br />
+				Location: VCLS 208 A<br />
+				Email: <a href="mailto:lakatos@vancouver.wsu.edu">lakatos@vancouver.wsu.edu</a></p>
+				
+				<p>Dr. Michael Morgan, Professor<br />
+				Phone: <a href="tel:3605469726">360-564-9726</a><br />
+				Location: VCLS 208 G<br />
+				Email: <a href="mailto:mmmorgan@vancouver.wsu.edu">mmmorgan@vancouver.wsu.edu</a></p>
+				
+				<p>Dr. Tahira M. Probst, Professor<br />
+				Phone: <a href="tel:3605469746">360-546-9746</a><br />
+				Location: VCLS 208 J<br />
+				Email: <a href="mailto:probst@vancouver.wsu.edu">probst@vancouver.wsu.edu</a></p>
+				
+				<p>Karen Schmaling Ph.D., Vice Chancellor for Acedemic Affairs<br />
+				Phone: <a href="tel:3605469583">360-546-9583</a><br />
+				Location: VDEN 208<br />
+				Email: <a href="mailto:Karen.Schmaling@vancouver.wsu.edu">Karen.Schmaling@vancouver.wsu.edu</a></p>
+				
+				<p>Elizabeth Soliday Ph.D., Associate Professor<br />
+				Phone: <a href="tel:3605469727">360-546-9727</a><br />
+				Location: VCLS 208 P<br />
+				Email: <a href="mailto:esoliday@vancouver.wsu.edu">esoliday@vancouver.wsu.edu</a></p>
+				
+				<p>Elizabeth Whitchurch Ph.D., Research Assistant<br />
+				Phone: <a href="tel:3605469090">360-546-9090</a><br />
+				Location: VCLS 208<br />
+				Email: <a href="mailto:liz.whitchurch@wsu.edu">liz.whitchurch@wsu.edu</a></p>
+				
+				<p>Katie Witkiewitz Ph.D., Assistant Professor<br />
+				Phone: <a href="tel:3605469403">360-546-9403</a><br />
+				Location: VCLS 208 R<br />
+				Email: <a href="mailto:katie.witkiewitz@vancouver.wsu.edu">katie.witkiewitz@vancouver.wsu.edu</a></p>
+				
+				<p>Kathryn Becker Blease, Adjunct Faculty<br />
+				Phone: <a href="tel:3605469720">360-546-9720</a><br />
+				Location: VCLS 160 G<br />
+				Email: <a href="mailto:kbecker-blease@vancouver.wsu.edu">kbecker-blease@vancouver.wsu.edu</a></p>
+				
+				<p>Enrique Brouwer M.A., Adjunct Faculty<br />
+				Phone: <a href="tel:5857297846">585-729-7846</a><br />
+				Location: VCLS Main Office<br />
+				Email: <a href="mailto:enrique.brouwer@vancouver.wsu.edu">enrique.brouwer@vancouver.wsu.edu</a></p>
+				
+				<p>Bill Griesar Ph.D., Adjunct Faculty<br />
+				Phone: <a href="tel:3605469720">360-546-9720</a><br />
+				Location: VCLS 160 G<br />
+				Email: <a href="mailto:bgriesar@pacifier.com">bgriesar@pacifier.com</a></p>
+				
+				<p>Alyssa Dart, Acedemic Coordinator<br />
+				Phone: <a href="tel:3605469451">360-546-9451</a><br />
+				Location: VSCI 103 D<br />
+				Email: <a href="mailto:darta@vancouver.wsu.edu">darta@vancouver.wsu.edu</a></p>
+				
+				<p>Janet DeWitt, Senior Secretary<br />
+				Phone: <a href="tel:3605469720">360-546-9720</a><br />
+				Location: VCLS 208<br />
+				Email: <a href="mailto:jldewitt@vancouver.wsu.edu">jldewitt@vancouver.wsu.edu</a></p>
+				
+				<p>Shellynda Michalek, Acedemic Coordinator Support<br />
+				Phone: <a href="tel:3605469106">360-546-9106</a><br />
+				Location: VSCI 130<br />
+				Email: <a href="mailto:michaleksj@vancouver.wsu.edu">michaleksj@vancouver.wsu.edu</a></p>
+				
+				<p>Jill Gjerde M.A., Graduate Student<br />
+				Phone: <a href="tel:3605469720">360-546-9720</a><br />
+				Location: VCLS 208 V<br />
+				Email: <a href="mailto:jill_gjerde@wsu.edu">jill_gjerde@wsu.edu</a></p>
+				
+				<p>Lixin Jiang, Graduate Student<br />
+				Phone: <a href="tel:3605469720">360-546-9720</a><br />
+				Location: VCLS 108<br />
+				Email: <a href="mailto:lixin.jiang@email.wsu.edu">lixin.jiang@email.wsu.edu</a></p>
+				
+				<p>Jason Potwora, Graduate Student<br />
+				Phone: <a href="tel:3605469404">360-546-9404</a><br />
+				Location: VCLS 108<br />
+				Email: <a href="mailto:Jpotwora@wsu.edu">Jpotwora@wsu.edu</a></p>
+			</div>
+			
+			<div class="collapsibleDirectory" data-role="collapsible">
+				<H3>Public Affairs</H3>
+				<p>Dana Lee Baker Ph.D., Associate Professor and Director of Program of Public Affairs<br />
+				Phone: <a href="tel:3605469125">360-546-9125</a><br />
+				Location: VMMC 202 N<br />
+				Email: <a href="mailto:bakerdl@vancouver.wsu.edu">bakerdl@vancouver.wsu.edu</a></p>
+				
+				<p>M. Jahi Chappell Ph.D., Assistant Professor of Environmental Science and Justice<br />
+				Phone: <a href="tel:3605469413">360-546-9413</a><br />
+				Location: VSCI 230 P<br />
+				Email: <a href="mailto:m.jahi.chappell@vancouver.wsu.edu">m.jahi.chappell@vancouver.wsu.edu</a></p>
+				
+				<p>Laurie A. Drapela Ph.D., Associate Professor of Criminal Justice<br />
+				Phone: <a href="tel:3605469485">360-546-9485</a><br />
+				Location: VCLS 208 N<br />
+				Email: <a href="mailto:ldrapela@vancouver.wsu.edu">ldrapela@vancouver.wsu.edu</a></p>
+				
+				<p>Daniel Jaffee Ph.D., Assistant Professor of Sociology<br />
+				Phone: <a href="tel:3605469279">360-546-9279</a><br />
+				Location: VMMC 102 U<br />
+				Email: <a href="mailto:jaffee@wsu.edu">jaffee@wsu.edu</a></p>
+				
+				<p>Carolyn Long Ph.D., Associate Professor of Political Science and Associate Director of Liberal Arts<br />
+				Phone: <a href="tel:3605469737">360-546-9737</a><br />
+				Location: VMMC 102 A<br />
+				Email: <a href="mailto:coelong@vancouver.wsu.edu">coelong@vancouver.wsu.edu</a></p>
+				
+				<p>Mark Stephan Ph.D., Associate Professor<br />
+				Phone: <a href="tel:3605469467">360-546-9467</a><br />
+				Location: VCLS 208 Q<br />
+				Email: <a href="mailto:stephanm@vancouver.wsu.edu">stephanm@vancouver.wsu.edu</a></p>
+				
+				<p>Thomas M. Tripp, Professor of Management<br />
+				Phone: <a href="tel:3605469754">360-546-9754</a><br />
+				Location: VCLS 308 E<br />
+				Email: <a href="mailto:ttripp@vancouver.wsu.edu">ttripp@vancouver.wsu.edu</a></p>
+				
+				<p>Darryl S. Wood Ph.D., Associte Professor<br />
+				Phone: <a href="tel:3605469255">360-546-9255</a><br />
+				Location: VMMC 201 W<br />
+				Email: <a href="mailto:darrlywood@vancouver.wsu.edu">darrlywood@vancouver.wsu.edu</a></p>
+				
+				<p>Annette Bradstreet, Program Assistant<br />
+				Phone: <a href="tel:3605469640">360-546-9640</a><br />
+				Location: VMMC 102 P<br />
+				Email: <a href="mailto:annette.bradstreet@vancouver.wsu.edu">annette.bradstreet@vancouver.wsu.edu</a></p>
+				
+				<p>Shellynda Michalek, Acedemic Coordinator Support<br />
+				Phone: <a href="tel:3605469106">360-546-9106</a><br />
+				Location: VSCI 130<br />
+				Email: <a href="mailto:michaleksj@vancouver.wsu.edu">michaleksj@vancouver.wsu.edu</a></p>
+				
+				<p>Lindy Volk, Acedemic Coordinator<br />
+				Phone: <a href="tel:3605469475">360-546-9745</a><br />
+				Location: VSCI 130<br />
+				Email: <a href="mailto:isakamoto@vancouver.wsu.edu">isakamoto@vancouver.wsu.edu</a></p>
+				
+				<p>Ellen Rogers MBA MPA, Graduate Student Instructor<br />
+				Phone: <a href="tel:3609214235">360-921-4235</a><br />
+				Location: VMMC 207<br />
+				Email: <a href="mailto:ellen.rogers@email.wsu.edu">ellen.rogers@email.wsu.edu</a></p>
+			</div>
+			
+			<div class="collapsibleDirectory" data-role="collapsible">
+				<H3>Social and Environmental Justice</H3>
+				<p>M. Jahi Chappell Ph.D., Assistant Professor of Environmental Science and Justice<br />
+				Phone: <a href="tel:3605469413">360-546-9413</a><br />
+				Location: VSCI 230 P<br />
+				Email: <a href="mailto:m.jahi.chappell@vancouver.wsu.edu">m.jahi.chappell@vancouver.wsu.edu</a></p>
+				
+				<p>Marcelo Diversi Ph.D., Assistant Professor of Human Development<br />
+				Phone: <a href="tel:3605469170">360-546-9170</a><br />
+				Location: VMCB 203<br />
+				Email: <a href="mailto:diversi@vancouver.wsu.edu">diversi@vancouver.wsu.edu</a></p>
+				
+				<p>Dr. Candice Goucher, Professor<br />
+				Phone: <a href="tel:3605469469">360-546-9469</a><br />
+				Location: VMMC 202 K<br />
+				Email: <a href="mailto:cgoucher@vancouver.wsu.edu">cgoucher@vancouver.wsu.edu</a></p>
+				
+				<p>Dr. Desiree Hellegers, Associate Professor, Director, Acedemic Coordinator<br />
+				Phone: <a href="tel:3605469643">360-546-9643</a><br />
+				Location: VMMC 202 V<br />
+				Email: <a href="mailto:desiree.hellegers@vancouver.wsu.edu">desiree.hellegers@vancouver.wsu.edu</a></p>
+				
+				<p>Daniel Jaffee Ph.D., Assistant Professor of Sociology<br />
+				Phone: <a href="tel:3605469279">360-546-9279</a><br />
+				Location: VMMC 102 U<br />
+				Email: <a href="mailto:jaffee@wsu.edu">jaffee@wsu.edu</a></p>
+				
+				<p>Jorge Guadalupe Liz&#225;rraga, Instructor<br />
+				Phone: <a href="tel:3605469284">360-546-9445</a><br />
+				Location: VMMC 102 P<br />
+				Email: <a href="mailto:jlizarraga@vancouver.wsu.edu">jlizarraga@vancouver.wsu.edu</a></p>
+				
+				<p>Dr. Laurie Mercier, Distinguished Professor<br />
+				Phone: <a href="tel:3605469646">360-546-9646</a><br />
+				Location: VMMC 102 V<br />
+				Email: <a href="mailto:lmercier@vancouver.wsu.edu:">lmercier@vancouver.wsu.edu</a></p>
+				
+				<p>Shellynda Michalek, Acedemic Coordinator Support<br />
+				Phone: <a href="tel:3605469106">360-546-9106</a><br />
+				Location: VSCI 130<br />
+				Email: <a href="mailto:michaleksj@vancouver.wsu.edu">michaleksj@vancouver.wsu.edu</a></p>
+				
+				<p>Pavithra Narayanan, Associate Professor<br />
+				Phone: <a href="tel:3605469732">360-546-9732</a><br />
+				Location: VMMC 202 F<br />
+				Email: <a href="mailto:pavitraa@vancouver.wsu.edu">pavitraa@vancouver.wsu.edu</a></p>
+				
+				<p>Wendy Olson, Assistant English Professor and Director of Composition<br />
+				Phone: <a href="tel:3605469513">360-546-9513</a><br />
+				Location: VMMC 202 F<br />
+				Email: <a href="mailto:wmolson@vancouver.wsu.edu">wmolson@vancouver.wsu.edu</a></p>
+				
+				<p>Dr. Sue Peabody, Professor and Associate Chair<br />
+				Phone: <a href="tel:3605469647">360-546-9647</a><br />
+				Location: VMMC 202 D<br />
+				Email: <a href="mailto:speabody@vancouver.wsu.edu">speabody@vancouver.wsu.edu</a></p>
+				
+				<p>Carol Siegel, Professor<br />
+				Phone: <a href="tel:3605469641">360-546-9641</a><br />
+				Location: VMMC SS202<br />
+				Email: <a href="mailto:siegel@vancouver.wsu.edu">siegel@vancouver.wsu.edu</a></p>
+				
+				<p>Mark Stephan Ph.D., Associate Professor<br />
+				Phone: <a href="tel:3605469467">360-546-9467</a><br />
+				Location: VCLS 208 Q<br />
+				Email: <a href="mailto:stephanm@vancouver.wsu.edu">stephanm@vancouver.wsu.edu</a></p>
+				
+				<p>Brian Tissot Ph.D., Interim Director and Professor<br />
+				Phone: <a href="tel:3605469611">360-546-9611</a><br />
+				Location: VSCI 230 M<br />
+				Email: <a href="mailto:tissot@vancouver.wsu.edu">tissot@vancouver.wsu.edu</a></p>
+			</div>
+			
+			<div class="collapsibleDirectory" data-role="collapsible">
+				<H3>Social Science</H3>
+				<p>Dr. Sue Peabody, Professor and Associate Chair<br />
+				Phone: <a href="tel:3605469647">360-546-9647</a><br />
+				Location: VMMC 202 D<br />
+				Email: <a href="mailto:speabody@vancouver.wsu.edu">speabody@vancouver.wsu.edu</a></p>
+				
+				<p>Mark Stephan Ph.D., Associate Professor<br />
+				Phone: <a href="tel:3605469467">360-546-9467</a><br />
+				Location: VCLS 208 Q<br />
+				Email: <a href="mailto:stephanm@vancouver.wsu.edu">stephanm@vancouver.wsu.edu</a></p>
+				
+				<p>Darryl S. Wood Ph.D., Associte Professor<br />
+				Phone: <a href="tel:3605469255">360-546-9255</a><br />
+				Location: VMMC 201 W<br />
+				Email: <a href="mailto:darrlywood@vancouver.wsu.edu">darrlywood@vancouver.wsu.edu</a></p>
+				
+				<p>Shellynda Michalek, Acedemic Coordinator Support<br />
+				Phone: <a href="tel:3605469106">360-546-9106</a><br />
+				Location: VSCI 130<br />
+				Email: <a href="mailto:michaleksj@vancouver.wsu.edu">michaleksj@vancouver.wsu.edu</a></p>
+				
+				<p>Teresa Phimister, Acedemic Coordinator<br />
+				Phone: <a href="tel:3605469664">360-546-9664</a><br />
+				Location: VSCI 130<br />
+				Email: <a href="mailto:phimister@vancouver.wsu.edu">phimister@vancouver.wsu.edu</a></p>
+				
+				<p>Lindy Volk, Acedemic Coordinator<br />
+				Phone: <a href="tel:3605469475">360-546-9745</a><br />
+				Location: VSCI 130<br />
+				Email: <a href="mailto:isakamoto@vancouver.wsu.edu">isakamoto@vancouver.wsu.edu</a></p>
+			</div>
+			
+			<div class="collapsibleDirectory" data-role="collapsible">
+				<H3>Sociology</H3>
+				<p>Daniel Jaffee Ph.D., Assistant Professor of Sociology<br />
+				Phone: <a href="tel:3605469279">360-546-9279</a><br />
+				Location: VMMC 102 U<br />
+				Email: <a href="mailto:jaffee@wsu.edu">jaffee@wsu.edu</a></p>
+				
+				<p>Alair MacLean, Professor<br />
+				Phone: <a href="tel:3605469177">360-546-9177</a><br />
+				Location: VMMC 202 H<br />
+				Email: <a href="mailto:alair@vancouver.wsu.edu">alair@vancouver.wsu.edu</a></p>
+				
+				<p>Clayton Mosher, Associate Professor<br />
+				Phone: <a href="tel:3605469439">360-546-9439</a><br />
+				Location: VMMC 202 B<br />
+				Email: <a href="mailto:cmosher@vancouver.wsu.edu">cmosher@vancouver.wsu.edu</a></p>
+				
+				<p>Beth Tarasawa, Assistant Professor<br />
+				Phone: <a href="tel:3605469537">360-564-9537</a><br />
+				Location: VCLS 208 C<br />
+				Email: <a href="mailto:beth.tarasawa@vancouver.wsu.edu">beth.tarasawa@vancouver.wsu.edu</a></p>
+				
+				<p>Amy S. Wharton, Director of Liberal Arts and Professor of Sociology<br />
+				Phone: <a href="tel:3605469617">360-546-9617</a><br />
+				Location: VMMC 202 A<br />
+				Email: <a href="mailto:wharton@vancouver.wsu.edu">wharton@vancouver.wsu.edu</a></p>
+				
+				<p>Amy G. Szemere, Lecturer<br />
+				Phone: <a href="tel:5032267298">503-226-7398</a><br />
+				Location: VMMC 102 P<br />
+				Email: <a href="mailto:szemere@vancouver.wsu.edu">szemere@vancouver.wsu.edu</a></p>
+				
+				<p>Annette Bradstreet, Program Assistant<br />
+				Phone: <a href="tel:3605469640">360-546-9640</a><br />
+				Location: VMMC 102 P<br />
+				Email: <a href="mailto:annette.bradstreet@vancouver.wsu.edu">annette.bradstreet@vancouver.wsu.edu</a></p>
+				
+				<p>Shellynda Michalek, Acedemic Coordinator Support<br />
+				Phone: <a href="tel:3605469106">360-546-9106</a><br />
+				Location: VSCI 130<br />
+				Email: <a href="mailto:michaleksj@vancouver.wsu.edu">michaleksj@vancouver.wsu.edu</a></p>
+				
+				<p>Lindy Volk, Acedemic Coordinator<br />
+				Phone: <a href="tel:3605469475">360-546-9745</a><br />
+				Location: VSCI 130<br />
+				Email: <a href="mailto:isakamoto@vancouver.wsu.edu">isakamoto@vancouver.wsu.edu</a></p>
+				
+				<p>Meredith Williams M.A., Graduate Student Instructor<br />
+				Phone: <a href="tel:3605469788">360-546-9788</a><br />
+				Location: VMMC 207<br />
+				Email: <a href="mailto:meredith.williams@email.wsu.edu">meredith.williams@email.wsu.edu</a></p>
+			</div>
+		</div>
+		</div><!-- end collapsible set -->
+		<div data-role="footer" data-position="fixed" data-tap-toggle="false" class="footer">
+			<div data-role="navbar">
+				<ul>
+					<li><a id="homeLink" href="#welcome" data-icon="homeIcon" >&nbsp;</a></li>
+					<li><a id="mapLink" href="#map" data-icon="mapIcon" >&nbsp;</a></li>
+					<li><a id="eventsLink" href="#events" data-icon="eventsIcon" >&nbsp;</a></li>
+					<li><a id="backpackLink" href="#backpack" data-icon="backpackIcon" >&nbsp;</a></li>
+					<li><a id="directoryLink" href="#directory" data-icon="directoryIcon"  class="ui-btn-active ui-state-persist">&nbsp;</a></li>
+				</ul>
+			</div>
+		</div>
+	</div><!-- end department offices directory page -->
+	
+<!-- Start Student Affairs Directory Page -->
+	<div data-role="page" id="studentAffairs">
+		<div data-role="header" style="margin-bottom:15px;" class="header">
+			<a href="#directory" data-role="button" data-iconpos="notext" data-icon="arrow-l"></a>
+			Student Affairs
+		</div>
+		
+		<div data-role="collapsible-set">
+		<div data-role="listview" data-inset="true" data-filter="true">
+			<div class="collapsibleDirectory" data-role="collapsible">
+				<H3>Admissions</H3>
+				<p>Admissions<br />
+				Phone: <a href="tel:3605469779">360-546-9779</a><br />
+				Location: VSSC 100<br />
+				Email: <a href="mailto:admissions@vancouver.wsu.edu">admissions@vancouver.wsu.edu</a></p>
+				
+				<p>Hannah Anderson, Program Coordinator<br />
+				Phone: <a href="tel:3605469096">360-546-9096</a><br />
+				Location: VSSC 140 M<br />
+				Email: <a href="mailto:Hannah_anderson@vancouver.wsu.edu">Hannah_anderson@vancouver.wsu.edu</a></p>
+				
+				<p>Natalie Brusseau, Admissions Counselor<br />
+				Phone: <a href="tel:3605469162">360-546-9162</a><br />
+				Location: VSSC 139<br />
+				Email: <a href="mailto:brusseau@vancouver.wsu.edu">brusseau@vancouver.wsu.edu</a></p>
+				
+				<p>Katrina Choi, Admissions Counselor<br />
+				Phone: <a href="tel:3605469782">360-546-9782</a><br />
+				Location: VSSC 135<br />
+				Email: <a href="mailto:katrina.choi@vancouver.wsu.edu">katrina.choi@vancouver.wsu.edu</a></p>
+				
+				<p>Janet Cleveland, Transfer Coordinator at Clark College<br />
+				Phone: <a href="tel:3609922585">360-992-2585</a><br />
+				Location: Clark Gaiser Hall Advising Center<br />
+				Email: <a href="mailto:jrcleveland@vancouver.wsu.edu">jrcleveland@vancouver.wsu.edu</a></p>
+				
+				<p>Carson Creecy, Admissions Counselor<br />
+				Phone: <a href="tel:3605469102">360-546-9102</a><br />
+				Location: VSSC 137<br />
+				Email: <a href="mailto:carson.creecy@vancouver.wsu.edu">carson.creecy@vancouver.wsu.edu</a></p>
+				
+				<p>Kim Hiatt, Associate Director of Admissions<br />
+				Phone: <a href="tel:3605469563">360-546-9563</a><br />
+				Location: VSSC 152<br />
+				Email: <a href="mailto:hiattk@vancouver.wsu.edu">hiattk@vancouver.wsu.edu</a></p>
+				
+				<p>Kate Mcllraith, Admissions Counselor and International Student Advisor<br />
+				Phone: <a href="tel:3605469087">360-546-9087</a><br />
+				Location: VSSC 141<br />
+				Email: <a href="mailto:katem@vancouver.wsu.edu">katem@vancouver.wsu.edu</a></p>
+				
+				<p>Renee Orazi, Credentials Evaluator<br />
+				Phone: <a href="tel:3605469259">360-546-9259</a><br />
+				Location: VSSC 140 N<br />
+				Email: <a href="mailto:rorazi@vancouver.wsu.edu">rorazi@vancouver.wsu.edu</a></p>
+				
+				<p>Julie Talvitie, Program Support Supervisor<br />
+				Phone: <a href="tel:3605469572">360-546-9572</a><br />
+				Location: VSSC 145<br />
+				Email: <a href="mailto:jtalvitie@vancouver.wsu.edu">jtalvitie@vancouver.wsu.edu</a></p>
+			</div>
+			
+			<div class="collapsibleDirectory" data-role="collapsible">
+				<H3>Financial Aid and Scholarships</H3>
+				<p>Financial Aid and Scholarships<br />
+				Phone: <a href="tel:3605469559">360-546-9559</a><br />
+				Location: VSSC 100<br />
+				Email: <a href="mailto:finaid@vancouver.wsu.edu">finaid@vancouver.wsu.edu</a></p>
+				
+				<p>Abril Hunt, Student Affairs Counselor and Financial Aid & Scholarships<br />
+				Phone: <a href="tel:3605469781">360-546-9781</a><br />
+				Location: VSSC 133<br />
+				Email: <a href="mailto:abril.hunt@vancouver.wsu.edu">abril.hunt@vancouver.wsu.edu</a></p>
+				
+				<p>April Lappin, Financial Aid & Scholarships Manager<br />
+				Phone: <a href="tel:3605469103">360-546-9103</a><br />
+				Location: VSSC 131<br />
+				Email: <a href="mailto:april.lappin@vancouver.wsu.edu">april.lappin@vancouver.wsu.edu</a></p>
+			</div>
+			
+			<div class="collapsibleDirectory" data-role="collapsible">
+				<H3>Registrar's Office</H3>
+				<p>Registrar's Office<br />
+				Phone: <a href="tel:3605469565">360-546-9565</a><br />
+				Location: VSSC 100<br />
+				Email: <a href="mailto:registrar@vancouver.wsu.edu">registrar@vancouver.wsu.edu</a></p>
+				
+				<p>Jenny Kincaid, Program Coordinator<br />
+				Phone: <a href="tel:3605469553">360-546-9553</a><br />
+				Location: VSSC 140 E<br />
+				Email: <a href="mailto:jenny.kincaid@vancouver.wsu.edu">jenny.kincaid@vancouver.wsu.edu</a></p>
+				
+				<p>Jean Lang, Campus Registrar<br />
+				Phone: <a href="tel:3605469566">360-546-9566</a><br />
+				Location: VSSC 150<br />
+				Email: <a href="mailto:langj@vancouver.wsu.edu">langj@vancouver.wsu.edu</a></p>
+				
+				<p>Phyllis Vomacka, Program Coordinator<br />
+				Phone: <a href="tel:3605469565">360-546-9565</a><br />
+				Location: VSSC 140 F<br />
+				Email: <a href="mailto:pchase@vancouver.wsu.edu">pchase@vancouver.wsu.edu</a></p>
+			</div>
+			
+			<div class="collapsibleDirectory" data-role="collapsible">
+				<H3>Student Diversity</H3>
+				<p>Bola Majekobaje, Assistant Director<br />
+				Phone: <a href="tel:3605469568">360-546-9568</a><br />
+				Location: VFSC 125<br />
+				Email: <a href="mailto:majekoba@vancouver.wsu.edu">majekoba@vancouver.wsu.edu</a></p>
+			</div>
+			
+			<div class="collapsibleDirectory" data-role="collapsible">
+				<H3>Student Involvement</H3>
+				<p>OSI Front Desk<br />
+				Phone: <a href="tel:3605469163">360-54-9163</a><br />
+				Location: VFSC 100<br />
+				Email: <a href="mailto:osi@vancouver.wsu.edu">osi@vancouver.wsu.edu</a></p>
+				
+				<p>Anthony Deringer, Recreation Coordinator<br />
+				Phone: <a href="tel:3605469532">360-546-9532</a><br />
+				Location: VFSC 136<br />
+				Email: <a href="mailto:a.deringer@vancouver.wsu.edu">a.deringer@vancouver.wsu.edu</a></p>
+				
+				<p>Michelle Mclvoy, Student Involvement Manager<br />
+				Phone: <a href="tel:3605469530">360-546-9530</a><br />
+				Location: VFSC 123<br />
+				Email: <a href="mailto:mmcilvoy@vancouver.wsu.edu">mmcilvoy@vancouver.wsu.edu</a></p>
+				
+				<p>Casey Payseno, Advisor<br />
+				Phone: <a href="tel:3605469465">360-546-9465</a><br />
+				Location: VFSC 127<br />
+				Email: <a href="mailto:casey.payseno@vancouver.wsu.edu">casey.payseno@vancouver.wsu.edu</a></p>
+				
+				<p>Teresa Picchioni, Program Coordinator<br />
+				Phone: <a href="tel:3605469527">360-546-9527</a><br />
+				Location: VFSC 121<br />
+				Email: <a href="mailto:teresa.picchioni@vancouver.wsu.edu">teresa.picchioni@vancouver.wsu.edu</a></p>
+			</div>
+			
+			<div class="collapsibleDirectory" data-role="collapsible">
+				<H3>Student Resource Center</H3>
+				<p>SRC Front Desk<br />
+				Phone: <a href="tel:3605469155">360-56-9155</a><br />
+				Location: VSSC Lower Level<br />
+				Email: <a href="mailto:src@vancouver.wsu.edu">src@vancouver.wsu.edu</a></p>
+				
+				<p>Heather Chase, Program Coordinator<br />
+				Phone: <a href="tel:3605469285">360-546-9285</a><br />
+				Location: VSSC 20 B<br />
+				Email: <a href="mailto:hchase@vancouver.wsu.edu">hchase@vancouver.wsu.edu</a></p>
+				
+				<p>Sally Dost, Disability Services Coordinator<br />
+				Phone: <a href="tel:3605469138">360-546-9138</a><br />
+				Location: VSSC 20 B<br />
+				Email: <a href="mailto:sdost@vancouver.wsu.edu">sdost@vancouver.wsu.edu</a></p>
+				
+				<p>Kelsey DuPere, Student Achievement Manager<br />
+				Phone: <a href="tel:3605469165">360-546-9165</a><br />
+				Location: VSSC 20 D<br />
+				Email: <a href="mailto:dupere@vancouver.wsu.edu">dupere@vancouver.wsu.edu</a></p>
+				
+				<p>Alicia Lee, Program Assistant<br />
+				Phone: <a href="tel:3605469155">360-546-9155</a><br />
+				Location: VSSC 23<br />
+				Email: <a href="mailto:alicialee@vancouver.wsu.edu">alicialee@vancouver.wsu.edu</a></p>
+				
+				<p>Christine Lundeen, Career Counselor<br />
+				Phone: <a href="tel:3605469155">360-546-9155</a><br />
+				Location: VSSC 20 E<br />
+				Email: <a href="mailto:clundeen@vancouver.wsu.edu">clundeen@vancouver.wsu.edu</a></p>
+				
+				<p>Kelly McKone, Proctor<br />
+				Phone: <a href="tel:3605469155">360-546-9155</a><br />
+				Location: VSSC 23<br />
+				Email: <a href="mailto:kmckone@vancouver.wsu.edu">kmckone@vancouver.wsu.edu</a></p>
+				
+				<p>Cindy Morical, Acedemic Coordinator<br />
+				Phone: <a href="tel:3605469567">360-546-9567</a><br />
+				Location: VSSC 20 C<br />
+				Email: <a href="mailto:cmorical@vancouver.wsu.edu">cmorical@vancouver.wsu.edu</a></p>
+				
+				<p>Miwako Nakamoto, Acedemic Coordinator<br />
+				Phone: <a href="tel:3605469166">360-546-9166</a><br />
+				Location: VSSC 20 F<br />
+				Email: <a href="mailto:mnakamoto@vancouver.wsu.edu">mnakamoto@vancouver.wsu.edu</a></p>
+				
+				<p>Bill Stahley, Acedemic Coordinator<br />
+				Phone: <a href="tel:3605469273">360-546-9273</a><br />
+				Location: VSSC 20 A<br />
+				Email: <a href="mailto:bstahley@vancouver.wsu.edu">bstahley@vancouver.wsu.edu</a></p>
+			</div>
+		</div>
+		</div>
+		
+		<div data-role="footer" data-position="fixed" data-tap-toggle="false" class="footer">
+			<div data-role="navbar">
+				<ul>
+					<li><a id="homeLink" href="#welcome" data-icon="homeIcon" >&nbsp;</a></li>
+					<li><a id="mapLink" href="#map" data-icon="mapIcon" >&nbsp;</a></li>
+					<li><a id="eventsLink" href="#events" data-icon="eventsIcon" >&nbsp;</a></li>
+					<li><a id="backpackLink" href="#backpack" data-icon="backpackIcon" >&nbsp;</a></li>
+					<li><a id="directoryLink" href="#directory" data-icon="directoryIcon"  class="ui-btn-active ui-state-persist">&nbsp;</a></li>
+				</ul>
+			</div>
+		</div>
+	</div><!-- end services directory page -->
+	
+<!-- Start ASWSUV/OSI directory listing page -->
+	<div data-role="page" id="aswsuvOsi">
+		<div data-role="header" class="header">
+			<a href="#directory" data-role="button" data-iconpos="notext" data-icon="arrow-l"></a>
+			ASWSUV/OSI
+		</div>
+		
+		<div data-role="content">
+				<p><h3>Hours:</h3> Monday thru Friday from 8:00am to 5:00pm<br /><br />
+				ASWSUV is more than a student government; we are here to make your time at 
+				WSU Vancouver a meaningful experience. If you have any comments, questions or 
+				concerns, please come in and visit us anytime.
+				</p>
+				<div class="gridview">
+					<div><img src="images/danielnguyen.jpg" /><p>President: <br />Daniel Nguyen</p></div>
+					<div><img src="images/aaronbruckner.jpg" /><p>Vice President: <br />Aaron Bruckner</p></div>
+					<div><img src="images/becciwestby.jpg" /><p>Director of Activities: <br />Becci Westby</p></div>
+					<div><img src="images/dericklock.jpg" /><p>Director of Communications: <br />Derick Lock</p></div>
+					<div><img src="images/joshwright.jpg" /><p>Director of Legislative Affairs: <br />Joshua Wright</p></div>
+					<div><img src="images/michaelgay.jpg" /><p>Director of Student Life Development: <br />Michael Gay</p></div>
+					<div><img src="images/scottyin.jpg" /><p>Director of University Affairs: <br />Scott Yin</p></div>
+					<div><img src="images/lindaotton.jpg" /><p>Assistant Director of Activities: <br />Linda Otton</p></div>
+					<div><img src="images/kevinchen.jpg" /><p>Assistant Director of Communications: <br />Kevin Chen</p></div>
+				</div>
+		</div>
+		<div data-role="footer" data-position="fixed" data-tap-toggle="false" class="footer">
+			<div data-role="navbar">
+				<ul>
+					<li><a id="homeLink" href="#welcome" data-icon="homeIcon" >&nbsp;</a></li>
+					<li><a id="mapLink" href="#map" data-icon="mapIcon" >&nbsp;</a></li>
+					<li><a id="eventsLink" href="#events" data-icon="eventsIcon" >&nbsp;</a></li>
+					<li><a id="backpackLink" href="#backpack" data-icon="backpackIcon" >&nbsp;</a></li>
+					<li><a id="directoryLink" href="#directory" data-icon="directoryIcon"  class="ui-btn-active ui-state-persist">&nbsp;</a></li>
+				</ul>
+			</div>
+		</div>
+	</div><!-- end ASWSUV/OSI directory page -->
+
+<!-- The following pages are for each of the buildings, sportsfields, etc -->
+<!-- Start admin building page -->
+	<div data-role="page" id="den" class="building">
+		<div data-role="header" class="header">
+			<a href="#map" class="backBtn" data-rel="back" data-role="button" data-iconpos="notext" data-icon="arrow-l">Back</a>
+			Dengerink Administration Building
+		</div>
+		<div data-role="content">	
+			<div class="slider-wrapper">
+				<div class="slider" class="nivoSlider"><!-- container for slider -->
+					<img src="images/vden.jpg" />
+					<img src="images/vden2.jpg" />
+				</div>
+			</div>
+			
+			<div class="info">
+				<p><h4>Features:</h4><br />
+				Cafeteria<br />
+				KOUG radio<br />
+				Art gallery next to the Cafeteria</p>
+				
+				<h4>About:</h4><br />
+				The Dengerink Administration Building was named in the honor of H.A. "Hal" Dengrink, 
+				the founding chancellor of WSU Vancouver. It contains a large lecture auditorium, an 
+				art gallery, and a cafeteria, which serves a variety of prepared meals. 
+			</div>
+		</div><!-- /content -->
+		
+		<div data-role="footer" data-position="fixed" data-tap-toggle="false" class="footer">
+			<div data-role="navbar">
+				<ul>
+					<li><a id="homeLink" href="#welcome" data-icon="homeIcon" >&nbsp;</a></li>
+					<li><a id="mapLink" href="#map" data-icon="mapIcon" >&nbsp;</a></li>
+					<li><a id="eventsLink" href="#events" data-icon="eventsIcon" >&nbsp;</a></li>
+					<li><a id="backpackLink" href="#backpack" data-icon="backpackIcon" >&nbsp;</a></li>
+					<li><a id="directoryLink" href="#directory" data-icon="directoryIcon" >&nbsp;</a></li>
+				</ul>
+			</div>
+		</div>
+	</div><!-- end admin page -->
+	
+<!-- Start clark college page -->
+	<div data-role="page" id="ccw" class="building">
+		<div data-role="header" class="header">
+			<a href="#map" class="backBtn" data-rel="back" data-role="button" data-iconpos="notext" data-icon="arrow-l">Back</a>
+			Clark College Building
+		</div>
+		
+		<div data-role="content">
+			<div class="slider-wrapper">
+				<div class="slider" class="nivoSlider"><!-- container for slider -->
+					<img src="images/vccwfront2.jpg" />
+					<img src="images/vccwside.jpg" />
+				</div>
+			</div>
+			
+			<div class="info">
+				<p><h4>Features:</h4><br />
+				Computer Lab: Clark Students Only<br />
+				Student Lounge/Study Space: No</p>
+				
+				<h4>About:</h4><br />
+				The Clark College Building is connected with Clark Community College. 
+				It was founded on January 3, 2006. Along with mainly supporting the nursing program 
+				that Clark College has, WSU Vancouver and Clark College formed an agreement to 
+				make transferring credits between the schools easier. There are also science and 
+				computer laboratories featured inside available to Clark students at WSUV. 
+			</div>
+		</div><!-- /content -->
+
+		<div data-role="footer" data-position="fixed" data-tap-toggle="false" class="footer">
+			<div data-role="navbar">
+				<ul>
+					<li><a id="homeLink" href="#welcome" data-icon="homeIcon" >&nbsp;</a></li>
+					<li><a id="mapLink" href="#map" data-icon="mapIcon" >&nbsp;</a></li>
+					<li><a id="eventsLink" href="#events" data-icon="eventsIcon" >&nbsp;</a></li>
+					<li><a id="backpackLink" href="#backpack" data-icon="backpackIcon" >&nbsp;</a></li>
+					<li><a id="directoryLink" href="#directory" data-icon="directoryIcon" >&nbsp;</a></li>
+				</ul>
+			</div>
+		</div>
+	</div><!-- end clark college page -->
+	
+<!-- Start classroom building page -->
+	<div data-role="page" id="cls" class="building">
+		<div data-role="header" class="header">
+			<a href="#map" class="backBtn" data-rel="back" data-role="button" data-iconpos="notext" data-icon="arrow-l">Back</a>
+			Classroom Building
+		</div>
+		<div data-role="content">
+			<div class="slider-wrapper">
+				<div class="slider" class="nivoSlider"><!-- container for slider -->
+					<img src="images/vclsfront2.jpg" />
+					<img src="images/vclsfront.jpg" />
+					<img src="images/vclsside.jpg" />
+				</div>
+			</div>
+			
+			<div class="info">
+				<p><h4>Features:</h4><br />
+				Computer Lab on the 2nd Floor<br />
+				VanCougar and Salmon Creek Journal Offices</p>
+				
+				<h4>About:</h4><br />
+				The Classroom Building houses a variety of departments, such as Foreign Language, 
+				Psychology, Business, History, etc. There are two major computer labs on the second 
+				floor. Also on the second floor is the current office location for the VanCougar 
+				(the campus newspaper) and Salmon Creek Journal (the annual literary and visual arts 
+				journal). On the basement is a special lab or the "move lab" created by Dene Grigar, 
+				the head of the CMDC (Creative Media and Digital Culture) program. 
+			</div>
+		</div><!-- /content -->
+		<div data-role="footer" data-position="fixed" data-tap-toggle="false" class="footer">
+			<div data-role="navbar">
+				<ul>
+					<li><a id="homeLink" href="#welcome" data-icon="homeIcon" >&nbsp;</a></li>
+					<li><a id="mapLink" href="#map" data-icon="mapIcon" >&nbsp;</a></li>
+					<li><a id="eventsLink" href="#events" data-icon="eventsIcon" >&nbsp;</a></li>
+					<li><a id="backpackLink" href="#backpack" data-icon="backpackIcon" >&nbsp;</a></li>
+					<li><a id="directoryLink" href="#directory" data-icon="directoryIcon" >&nbsp;</a></li>
+				</ul>
+			</div>
+		</div>
+	</div><!-- end classroom building page -->
+	
+<!-- Start of ecs page -->
+	<div data-role="page" id="ecs" class="building">
+		<div data-role="header" class="header">
+			<a href="#map" class="backBtn" data-rel="back" data-role="button" data-iconpos="notext" data-icon="arrow-l">Back</a>
+			Engineering & Computer Sciences
+		</div>
+		<div data-role="content">
+			<div class="slider-wrapper">
+				<div class="slider" class="nivoSlider"><!-- container for slider -->
+					<img src="images/vecs.jpg" />
+					<img src="images/vecs3.jpg" />
+					<img src="images/vecs2.jpg" />
+				</div>
+			</div>
+			
+			<div class="info">
+				<p><h4>Features:</h4><br />
+				Computer Lab on the 1st Floor<br />
+				Student Lounge/Study Space</p>
+				
+				<h4>About:</h4><br />
+				The Engineering and Computer Science Building is the newest building addition to the 
+				WSU Vancouver campus and is expected to be in use starting Spring 2012. It is meant 
+				to support the multiple engineering academic degree programs. 
+			</div>
+		</div><!-- /content -->
+		<div data-role="footer" data-position="fixed" data-tap-toggle="false" class="footer">
+			<div data-role="navbar">
+				<ul>
+					<li><a id="homeLink" href="#welcome" data-icon="homeIcon" >&nbsp;</a></li>
+					<li><a id="mapLink" href="#map" data-icon="mapIcon" >&nbsp;</a></li>
+					<li><a id="eventsLink" href="#events" data-icon="eventsIcon" >&nbsp;</a></li>
+					<li><a id="backpackLink" href="#backpack" data-icon="backpackIcon" >&nbsp;</a></li>
+					<li><a id="directoryLink" href="#directory" data-icon="directoryIcon" >&nbsp;</a></li>
+				</ul>
+			</div>
+		</div>
+	</div><!-- /page -->
+	
+<!-- Start of sci page -->
+	<div data-role="page" id="sci" class="building">
+		<div data-role="header" class="header">
+			<a href="#map" class="backBtn" data-rel="back" data-role="button" data-iconpos="notext" data-icon="arrow-l">Back</a>
+			Life Sciences
+		</div>
+		<div data-role="content">
+			<div class="slider-wrapper">
+				<div class="slider" class="nivoSlider"><!-- container for slider -->
+					<img src="images/vsci.jpg" />
+					<img src="images/vsciback.jpg" />
+					<img src="images/vsciside.jpg" />
+				</div>
+			</div>
+			
+			<div class="info">
+				<p><h4>Features:</h4><br />
+				Student Lounge/Study Space on 2nd Floor</p>
+				
+				<h4>About:</h4><br />
+				The Life Sciences Building is mainly for the Agriculture/Biology and 
+				Computer Science programs available at WSUV. It houses various labs ranging from 
+				robotics to engineering design. There is also a greenhouse that is available for the 
+				students in horticulture-base programs and explores various agriculture practices.
+			</div>
+		</div><!-- /content -->
+		
+		<div data-role="footer" data-position="fixed" data-tap-toggle="false" class="footer">
+			<div data-role="navbar">
+				<ul>
+					<li><a id="homeLink" href="#welcome" data-icon="homeIcon" >&nbsp;</a></li>
+					<li><a id="mapLink" href="#map" data-icon="mapIcon" >&nbsp;</a></li>
+					<li><a id="eventsLink" href="#events" data-icon="eventsIcon" >&nbsp;</a></li>
+					<li><a id="backpackLink" href="#backpack" data-icon="backpackIcon" >&nbsp;</a></li>
+					<li><a id="directoryLink" href="#directory" data-icon="directoryIcon" >&nbsp;</a></li>
+				</ul>
+			</div>
+		</div>
+	</div><!-- /page -->
+	
+<!-- Start of fo page -->
+	<div data-role="page" id="fo" class="building">
+		<div data-role="header" class="header">
+			<a href="#map" class="backBtn" data-rel="back" data-role="button" data-iconpos="notext" data-icon="arrow-l">Back</a>
+			Facilities Operation Building
+		</div>
+		<div data-role="content">
+			<div class="gallery">
+				<img src="images/fop.jpg" />
+			</div>
+			
+			<div class="info">
+				<h4>About:</h4><br />
+				Hours: Monday thru Friday, 7:00am to 5:00pm<br />
+				The Facilities Operation Building is for the campus crew who tend to building 
+				maintenance and other facility care operations. 
+			</div>
+		</div><!-- /content -->
+		
+		<div data-role="footer" data-position="fixed" data-tap-toggle="false" class="footer">
+			<div data-role="navbar">
+				<ul>
+					<li><a id="homeLink" href="#welcome" data-icon="homeIcon" >&nbsp;</a></li>
+					<li><a id="mapLink" href="#map" data-icon="mapIcon" >&nbsp;</a></li>
+					<li><a id="eventsLink" href="#events" data-icon="eventsIcon" >&nbsp;</a></li>
+					<li><a id="backpackLink" href="#backpack" data-icon="backpackIcon" >&nbsp;</a></li>
+					<li><a id="directoryLink" href="#directory" data-icon="directoryIcon" >&nbsp;</a></li>
+				</ul>
+			</div>
+		</div>
+	</div><!-- /page -->
+	
+<!-- Start of fsc page -->
+	<div data-role="page" id="fsc" class="building">
+		<div data-role="header" class="header">
+			<a href="#map" class="backBtn" data-rel="back" data-role="button" data-iconpos="notext" data-icon="arrow-l">Back</a>
+			Firstenburg Student Commons
+		</div>
+		<div data-role="content">
+			<div class="slider-wrapper">
+				<div class="slider" class="nivoSlider"><!-- container for slider -->
+					<img src="images/vfsc.jpg" />
+					<img src="images/fscside.jpg" />
+				</div>
+			</div>
+			
+			<div class="info">
+				<p><h4>Features:</h4><br />
+				Commons Cafe<br />
+				Student Lounge/Study Space complete with cable TV, a Ping Pong table,<br />
+				video games and a separate room with a pool table<br />
+				ASWSUV and OSI offices</p>
+				
+				<h4>About:</h4><br />
+				Take a break from classes and studying to have some well-deserved fun here at the 
+				FSC. Play a game of pool or ping pong, or just sit and watch some cable TV.
+				This building is where many students go to study or hang out between classes. Events 
+				and lectures are often held here as well. The building contains the AWSUV 
+				(Associated Students of Washington State University Vancouver---the student 
+				leadership group), a small cafeteria, a pool table, two wide screen TVs, and two 
+				conference rooms. 
+			</div>
+		</div><!-- /content -->
+
+		<div data-role="footer" data-position="fixed" data-tap-toggle="false" class="footer">
+			<div data-role="navbar">
+				<ul>
+					<li><a id="homeLink" href="#welcome" data-icon="homeIcon" >&nbsp;</a></li>
+					<li><a id="mapLink" href="#map" data-icon="mapIcon" >&nbsp;</a></li>
+					<li><a id="eventsLink" href="#events" data-icon="eventsIcon" >&nbsp;</a></li>
+					<li><a id="backpackLink" href="#backpack" data-icon="backpackIcon" >&nbsp;</a></li>
+					<li><a id="directoryLink" href="#directory" data-icon="directoryIcon" >&nbsp;</a></li>
+				</ul>
+			</div>
+		</div>
+	</div><!-- /page -->
+	
+<!-- Start of lib page -->
+	<div data-role="page" id="lib" class="building">
+		<div data-role="header" class="header">
+			<a href="#map" class="backBtn" data-rel="back" data-role="button" data-iconpos="notext" data-icon="arrow-l">Back</a>
+			Library Building
+		</div>
+		<div data-role="content">
+			<div class="slider-wrapper">
+				<div class="slider" class="nivoSlider"><!-- container for slider -->
+					<img src="images/vlibfront.jpg" />
+					<img src="images/vlibback.jpg" />
+				</div>
+			</div>
+			
+			<div class="info">
+				<p><h4>Features:</h4><br />
+				Books. Lots of books
+				Student Lounge/Study Space with computers<br />
+				Fitness Center on the floor below the Library<br />
+				Writing center, 2nd floor room 203 (take a right at top of stairs)</p>
+				
+				<h4>About:</h4><br />
+				The Library Building contains a small collection of books for students to reference 
+				for research. However, it is linked with Summit and other major online databases 
+				that students can access. There are two major computer lab sections: one that is 
+				open for general use and another that is specifically for the students. On the 
+				first level are study rooms and individual desks that students can use for studying. 
+				On the second floor are the Writing Center, various classrooms, and faculty offices. 
+				On the basement level is the Fitness Center, which is available to all students and 
+				staff.
+			</div>
+		</div><!-- /content -->
+		
+		<div data-role="footer" data-position="fixed" data-tap-toggle="false" class="footer">
+			<div data-role="navbar">
+				<ul>
+					<li><a id="homeLink" href="#welcome" data-icon="homeIcon" >&nbsp;</a></li>
+					<li><a id="mapLink" href="#map" data-icon="mapIcon" >&nbsp;</a></li>
+					<li><a id="eventsLink" href="#events" data-icon="eventsIcon" >&nbsp;</a></li>
+					<li><a id="backpackLink" href="#backpack" data-icon="backpackIcon" >&nbsp;</a></li>
+					<li><a id="directoryLink" href="#directory" data-icon="directoryIcon" >&nbsp;</a></li>
+				</ul>
+			</div>
+		</div>
+	</div><!-- /page -->
+	
+<!-- Start of mcb page -->
+	<div data-role="page" id="mcb" class="building">
+		<div data-role="header" class="header">
+			<a href="#map" class="backBtn" data-rel="back" data-role="button" data-iconpos="notext" data-icon="arrow-l">Back</a>
+			McClaskey Building
+		</div>
+		<div data-role="content">
+			<div class="slider-wrapper">
+				<div class="slider" class="nivoSlider"><!-- container for slider -->
+					<img src="images/mcbside1.jpg" />
+					<img src="images/mcbside2.jpg" />
+				</div>
+			</div>
+			
+			<div class="info">
+				<p><h4>Features:</h4><br />
+				Child Day Care</p>
+				
+				<h4>About:</h4><br />
+				The McClaskey Building is home for the WSU Vancouver Child Development Program, 
+				which explores the best ways to address early childhood education. The building also 
+				contains a Preschool and Kindergarten care center for children of WSU Vancouver 
+				students. McClaskey is also home to the campus marketing and communications offices.
+			</div>
+		</div><!-- /content -->
+		
+		<div data-role="footer" data-position="fixed" data-tap-toggle="false" class="footer">
+			<div data-role="navbar">
+				<ul>
+					<li><a id="homeLink" href="#welcome" data-icon="homeIcon" >&nbsp;</a></li>
+					<li><a id="mapLink" href="#map" data-icon="mapIcon" >&nbsp;</a></li>
+					<li><a id="eventsLink" href="#events" data-icon="eventsIcon" >&nbsp;</a></li>
+					<li><a id="backpackLink" href="#backpack" data-icon="backpackIcon" >&nbsp;</a></li>
+					<li><a id="directoryLink" href="#directory" data-icon="directoryIcon" >&nbsp;</a></li>
+				</ul>
+			</div>
+		</div>
+	</div><!-- /page -->
+	
+<!-- Start of mmc page -->
+	<div data-role="page" id="mmc" class="building">
+		<div data-role="header" class="header">
+			<a href="#map" class="backBtn" data-rel="back" data-role="button" data-iconpos="notext" data-icon="arrow-l">Back</a>
+			Multimedia Classroom Buiding
+		</div>
+		<div data-role="content">
+			<div class="slider-wrapper">
+				<div class="slider" class="nivoSlider"><!-- container for slider -->
+					<img src="images/vmmc.jpg" />
+					<img src="images/vmmcfront.jpg" />
+					<img src="images/vmmcback.jpg" />
+				</div>
+			</div>
+			
+			<div class="info">
+				<p><h4>Features:</h4><br />
+				Computer Lab on the 1st floor<br />
+				Student Lounge/Study Space on the 2nd floor<br />
+				Art galleries down the main hall on the first floor</p>
+				
+				<h4>About:</h4><br />
+				The Multimedia Classroom Building is the main location for the CMDC (Creative Media 
+				and Digital Culture) program and classes. There are three main computer and art labs 
+				available to the CMDC students. There is also a computer lab open to all students on 
+				the first floor.  On the basement and second floor are classrooms for various 
+				departments such as English, History, Sociology, etc.  
+			</div>
+		</div><!-- /content -->
+		
+		<div data-role="footer" data-position="fixed" data-tap-toggle="false" class="footer">
+			<div data-role="navbar">
+				<ul>
+					<li><a id="homeLink" href="#welcome" data-icon="homeIcon" >&nbsp;</a></li>
+					<li><a id="mapLink" href="#map" data-icon="mapIcon" >&nbsp;</a></li>
+					<li><a id="eventsLink" href="#events" data-icon="eventsIcon" >&nbsp;</a></li>
+					<li><a id="backpackLink" href="#backpack" data-icon="backpackIcon" >&nbsp;</a></li>
+					<li><a id="directoryLink" href="#directory" data-icon="directoryIcon" >&nbsp;</a></li>
+				</ul>
+			</div>
+		</div>
+	</div><!-- /page -->
+	
+<!-- Start of pp page -->
+	<div data-role="page" id="pp" class="building">
+		<div data-role="header" class="header">
+			<a href="#map" class="backBtn" data-rel="back" data-role="button" data-iconpos="notext" data-icon="arrow-l">Back</a>
+			Physical Plant Building
+		</div>
+		<div data-role="content">
+			<div class="gallery">
+				<img src="images/vpp.jpg" />
+			</div>
+			
+			<div class="info">
+				<p><h4>Features:</h4><br />
+				Parking Services<br />
+				Lost and Found</p>
+				
+				<h4>About:</h4><br />
+				The Physical Plant Building is the location of the parking services and lost and 
+				found. It is here that students purchase their different parking passes.
+			</div>
+		</div><!-- /content -->
+		
+		<div data-role="footer" data-position="fixed" data-tap-toggle="false" class="footer">
+			<div data-role="navbar">
+				<ul>
+					<li><a id="homeLink" href="#welcome" data-icon="homeIcon" >&nbsp;</a></li>
+					<li><a id="mapLink" href="#map" data-icon="mapIcon" >&nbsp;</a></li>
+					<li><a id="eventsLink" href="#events" data-icon="eventsIcon" >&nbsp;</a></li>
+					<li><a id="backpackLink" href="#backpack" data-icon="backpackIcon" >&nbsp;</a></li>
+					<li><a id="directoryLink" href="#directory" data-icon="directoryIcon" >&nbsp;</a></li>
+				</ul>
+			</div>
+		</div>
+	</div><!-- /page -->
+	
+<!-- Start of ssc page -->
+	<div data-role="page" id="ssc" class="building">
+		<div data-role="header" class="header">
+			<a href="#map" class="backBtn" data-rel="back" data-role="button" data-iconpos="notext" data-icon="arrow-l">Back</a>
+			Student Services Center
+		</div>
+		<div data-role="content">
+			<div class="slider-wrapper">
+				<div class="slider" class="nivoSlider"><!-- container for slider -->
+					<img src="images/bookie.jpg" />
+					<img src="images/vsscfront.jpg" />
+					<img src="images/vsscside.jpg" />
+				</div>
+			</div>
+			
+			<div class="info">
+				<p><h4>Features:</h4><br />
+				Bookstore<br />
+				Student Resource Center on the 1st floor<br />
+				Financial Aid and Registrar offices on the 2nd floor<br />
+				Cashier on 2nd floor</p>
+				
+				<h4>About:</h4><br />
+				Have a question about the university, tuition, financial aid or need to pay a 
+				university fee? The SSC is information central for everything university related.
+				On the ground level of the Student Services Center, is the Student Resource Center, 
+				which provides support for students with disabilities, tutoring, career services, 
+				etc. There is also the Bookie, where students can purchase books or other necessary 
+				school supplies and shop for WSU related gear. On the second or upper level, students can find information on 
+				tuition, pay tuition, financial aid, etc. 
+				<br />
+				<br />
+				Go to the <a href="http://wsubookie.bncollege.com/webapp/wcs/stores/servlet/BNCBHomePage?storeId=15064&amp;catalogId=10001">Bookie</a> now!
+			</div>
+		</div><!-- /content -->
+		
+		<div data-role="footer" data-position="fixed" data-tap-toggle="false" class="footer">
+			<div data-role="navbar">
+				<ul>
+					<li><a id="homeLink" href="#welcome" data-icon="homeIcon" >&nbsp;</a></li>
+					<li><a id="mapLink" href="#map" data-icon="mapIcon" >&nbsp;</a></li>
+					<li><a id="eventsLink" href="#events" data-icon="eventsIcon" >&nbsp;</a></li>
+					<li><a id="backpackLink" href="#backpack" data-icon="backpackIcon" >&nbsp;</a></li>
+					<li><a id="directoryLink" href="#directory" data-icon="directoryIcon" >&nbsp;</a></li>
+				</ul>
+			</div>
+		</div>
+	</div><!-- /page -->
+	
+<!-- Start of ub page -->
+	<div data-role="page" id="ub" class="building">
+		<div data-role="header" class="header">
+			<a href="#map" class="backBtn" data-rel="back" data-role="button" data-iconpos="notext" data-icon="arrow-l">Back</a>
+			Undergraduate Building
+		</div>
+
+		<div data-role="content">
+			<div class="slider-wrapper">
+				<div class="slider" class="nivoSlider"><!-- container for slider -->
+					<img src="images/vub.jpg" />
+					<img src="images/vubside.jpg" />
+					<img src="images/vubside2.jpg" />
+				</div>
+			</div>
+			
+			<div class="info">
+				<p><h4>Features:</h4><br />
+				Student Lounge/Study Space on the 1st floor<br />
+				Math lab on first floor, room 102</p>
+				
+				<h4>About:</h4><br />
+				The Undergraduate Building is mostly used for undergraduate classes for 
+				freshman and sophomore students in a variety of subjects, such as English, 
+				Sociology, etc.  It is also the only one built to LEED (Leadership in Energy & 
+				Environmental Design) standards, which strives to make buildings that are more 
+				environmentally sustainable or "green". Inside the building, there is currently 
+				the Education department on the third floor, study rooms on the first and second 
+				floors, auditorium on the ground floor, and the math lab on the first floor. 
+			</div>
+		</div>
+		
+		<div data-role="footer" data-position="fixed" data-tap-toggle="false" class="footer">
+			<div data-role="navbar">
+				<ul>
+					<li><a id="homeLink" href="#welcome" data-icon="homeIcon" >&nbsp;</a></li>
+					<li><a id="mapLink" href="#map" data-icon="mapIcon" >&nbsp;</a></li>
+					<li><a id="eventsLink" href="#events" data-icon="eventsIcon" >&nbsp;</a></li>
+					<li><a id="backpackLink" href="#backpack" data-icon="backpackIcon" >&nbsp;</a></li>
+					<li><a id="directoryLink" href="#directory" data-icon="directoryIcon" >&nbsp;</a></li>
+				</ul>
+			</div>
+		</div>
+	</div><!-- /page -->
+	
+<!-- Start sportsfields page -->
+	<div data-role="page" id="sportsfields" class="building">
+		<div data-role="header" class="header">
+			<a href="#map" class="backBtn" data-rel="back" data-role="button" data-iconpos="notext" data-icon="arrow-l">Back</a>
+			Sports Fields
+		</div>
+		<div data-role="content">
+			<div class="slider-wrapper">
+				<div class="slider" class="nivoSlider"><!-- container for slider -->
+					<img src="images/sportcourt.jpg" />
+					<img src="images/sportsfield.jpg" />
+					<img src="images/diskgolf1.jpg" />
+					<img src="images/diskgolf2.jpg" />
+				</div>
+			</div>
+			
+			<div class="info">
+				<p><h4>About:</h4><br />
+				The Washington State University Vancouver campus has three different areas dedicated 
+				to outdoor recreation. The campus has a general use sports field which usually holds soccer activities 
+				on Thursdays in the Fall, a disc golf field and a gated basketball court which 
+				students can use at anytime.</p>
+			</div>
+		</div>
+		
+		<div data-role="footer" data-position="fixed" data-tap-toggle="false" class="footer">
+			<div data-role="navbar">
+				<ul>
+					<li><a id="homeLink" href="#welcome" data-icon="homeIcon" >&nbsp;</a></li>
+					<li><a id="mapLink" href="#map" data-icon="mapIcon" >&nbsp;</a></li>
+					<li><a id="eventsLink" href="#events" data-icon="eventsIcon" >&nbsp;</a></li>
+					<li><a id="backpackLink" href="#backpack" data-icon="backpackIcon" >&nbsp;</a></li>
+					<li><a id="directoryLink" href="#directory" data-icon="directoryIcon" >&nbsp;</a></li>
+				</ul>
+			</div>
+		</div>
+	</div><!-- /page -->
+	
+<!-- Start attractions page -->
+	<div data-role="page" id="attractions" class="building">
+		<div data-role="header" class="header">
+			<a href="#map" class="backBtn" data-rel="back" data-role="button" data-iconpos="notext" data-icon="arrow-l">Back</a>
+			Attractions
+		</div>
+		<div data-role="content">
+			<div class="slider-wrapper">
+				<div class="slider" class="nivoSlider"><!-- container for slider -->
+					<img src="images/fountain.jpg" />
+					<img src="images/rocks1.jpg" />
+					<img src="images/rocks2.jpg" />
+					<img src="images/statue1.jpg" />
+					<img src="images/statue2.jpg" />
+				</div>
+			</div>
+			
+			<div class="info">
+				<p><H4>Rock Sculptures</H4><br />
+				"Opening the Secret," by artist Li Xiu Qin, is a rock sculpture 
+				created from volcanic basalt native to the Pacific Northwest region. 
+				Large stones are arranged to resemble huge books and split open to 
+				reveal secret messages in American and Chinese Braille portrayed 
+				through concave openings and bronze rods. The sculpture was formally 
+				dedicated on July 14, 1999 and is located behind the campus library.</p>
+				<H4>Golden Statue</H4><br />
+				<p>The statue is dedicated to Lori Irving. Created by a local group of 
+				artists called Women Who Weld, this sculpture features bronze pillars
+				that depict themes in Lori Irving's life. These themes include Teaching/Mentoring;
+				Feminism; Positive Body Image; Community; and Laughter and Dance. The pillars are 
+				meant to signify simplicity and strength - standing tall on solid ground which 
+				embodies Lori's life and the fulfillment she reached in her 38 years.</p>
+				<H4>Firstenburg Family Fountain</H4><br />
+				<p>The Firstenburg Family Fountain was a gift from Ed and Mary Firstenburg. It is 
+				a year-round fountain which consists of four distinct water features. It offers 
+				seating areas where students, faculty, staff and visitors can relax and enjoy 
+				views of Mount St. Helens to the north and Mt. Hood to the east.</p>
+			</div>
+		</div>
+		
+		<div data-role="footer" data-position="fixed" data-tap-toggle="false" class="footer">
+			<div data-role="navbar">
+				<ul>
+					<li><a id="homeLink" href="#welcome" data-icon="homeIcon" >&nbsp;</a></li>
+					<li><a id="mapLink" href="#map" data-icon="mapIcon" >&nbsp;</a></li>
+					<li><a id="eventsLink" href="#events" data-icon="eventsIcon" >&nbsp;</a></li>
+					<li><a id="backpackLink" href="#backpack" data-icon="backpackIcon" >&nbsp;</a></li>
+					<li><a id="directoryLink" href="#directory" data-icon="directoryIcon" >&nbsp;</a></li>
+				</ul>
+			</div>
+		</div>
+	</div><!-- /page -->
+
+</body>
+</html>
