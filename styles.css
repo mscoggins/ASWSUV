@@ -4,7 +4,7 @@
 }
 
 .highlight {
-	color: green;
+	background-color: #ec7a08;
 }
 
 .header {
@@ -63,7 +63,7 @@ body {
 }
 
 
-#departmentOffices .ui-listview-inset .ui-li-desc, #studentAffairs .ui-listview-inset .ui-li-desc, #aswsuvOsi .ui-listview-inset .ui-li-desc {
+#departmentOffices .collapsibleDirectory, #studentAffairs .collapsibleDirectory, #aswsuvOsi .collapsibleDirectory {
 	color: white;
 	font-size: 15px;
 }
@@ -222,16 +222,20 @@ body {
 
 .mapnav {
 	font-size: 9px;
+	display: inline-block;
 }
 
 #mapButtons {
-	margin-top: 5px;
-	margin-bottom: 0;
+	margin-top: 0;
+	margin-bottom: 3px;
 }
 
 #map_canvas {
-	height: 960px;
-	width: 100%;
+	position: absolute;
+	top: 81px;
+	bottom: 20px;
+	left: 0;
+	right: 0;
 	padding: 0;
 	clear: both;
 }

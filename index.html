@@ -10,25 +10,45 @@
 	<meta name="apple-mobile-web-app-status-bar-style" content="black" />
 	<meta name="format-detection" content="telephone=yes">
 
-	<script src="jquery-1.7.2.js"></script>
+
 	
-	<script>
+	
+<script src="jquery-1.8.3.js"></script>
+	
+	<script><!-- kill JQM transitions -->
 		$(document).bind("mobileinit", function(){
 			$.mobile.defaultPageTransition="none"
 		});
 	</script>
 	
-	<script src="jquery.mobile-1.1.1.js"></script>
+	<script><!-- start highlight for listview filter-->
+	$( document ).on( "mobileinit", function(){
+		$.mobile.listview.prototype.options.filterCallback = function( text, searchValue, item ) {
+			var myregexp = new RegExp(searchValue, "ig");
+			var matches = text.match(myregexp);
+			while(matches) {
+				$(item).find('p').removeHighlight();
+				$(item).find('p').highlight(searchValue);
+				return false;
+			}
+			return true;
+		};
+	});
+	</script>
+	
+	
+	<script src="jquery.mobile-1.2.0.min.js"></script>
+	<script src="jquery.highlight-4.js"></script>
 	<script src="jquery.nivo.slider.pack.js"></script>
 	<!-- phonegap -->
 	<script src="cordova.js"></script>
 	
-	<link rel="stylesheet" href="jquery.mobile-1.1.1.min.css" />
+	<link rel="stylesheet" href="jquery.mobile-1.2.0.min.css" />
 	<link rel="stylesheet" href="styles.css" />
 	
 	<script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=true"></script>
 
-<script><!-- hide splashscreen on deviceready before timeout
+<script><!-- hide splashscreen on deviceready before timeout -->
 	document.addEventListener("deviceready", onDeviceReady, false);
 
 	function onDeviceReady() {
@@ -767,9 +787,7 @@ function toggleMarkers(attr,val) {
 		$('#tabsList a:first').click();
 	}); //end tabbed content script
 
-	//start highlight search filter
 
-	
 	//start zebra rows
 	$('#departmentOffices, #studentAffairs').live('pageshow', function(){
 		$('.collapsibleDirectory div p:nth-child(odd)').addClass('alternate');
@@ -1435,7 +1453,7 @@ $('div.ui-collapsible').live('expand', function() {
 			<a href="#directory" data-role="button" data-iconpos="notext" data-icon="arrow-l"></a>
 			Department Offices
 		</div>
-		<div data-role="collapsible-set">
+		<div data-role="collapsible-set" id="myset">
 		<div id="search" data-role="listview" data-inset="true" data-filter="true">
 			<div class="collapsibleDirectory" data-role="collapsible">
 				<H3>Accounting</H3>
